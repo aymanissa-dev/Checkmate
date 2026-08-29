@@ -135,7 +135,7 @@ export function resolveProvider(
     // Anthropic wiring deferred — fall back to clear skip message via mock stub
     // with empty findings would fabricate. Instead throw for real path.
     throw new Error(
-      "Anthropic provider selected but not yet implemented. Use OPENAI_API_KEY, HF_TOKEN, or CHECKMATE_MODEL_PROVIDER=mock|huggingface",
+      "Anthropic provider selected but not yet implemented. Default provider is huggingface (HF_TOKEN); or set CHECKMATE_MODEL_PROVIDER=openai|mock",
     );
   }
   // No key: default to mock for local/CI, with clear labeling

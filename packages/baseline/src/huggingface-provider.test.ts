@@ -9,7 +9,7 @@ import {
   getHfToken,
   isHuggingFaceProviderName,
 } from "./huggingface-provider.js";
-import { getProviderFromEnv } from "./provider.js";
+import { getProviderFromEnv, DEFAULT_MODEL_PROVIDER } from "./provider.js";
 import { resolveProvider } from "./runner.js";
 import { parseModelAction } from "./openai-provider.js";
 
@@ -35,10 +35,12 @@ function withEnv(
 }
 
 async function main(): Promise<void> {
+  assert.equal(DEFAULT_MODEL_PROVIDER, "huggingface");
   assert.equal(isHuggingFaceProviderName("huggingface"), true);
   assert.equal(isHuggingFaceProviderName("hf"), true);
   assert.equal(isHuggingFaceProviderName("openai"), false);
 
+  // Default when unset + HF token → huggingface (not OpenAI)
   await withEnv(
     {
       HF_TOKEN: "hf_test",
@@ -47,6 +49,7 @@ async function main(): Promise<void> {
       CHECKMATE_MODEL_PROVIDER: undefined,
       CHECKMATE_DRY_RUN: undefined,
       ANTHROPIC_API_KEY: undefined,
+      CHECKMATE_MODEL: undefined,
     },
     () => {
       assert.equal(getHfToken(), "hf_test");
@@ -57,6 +60,80 @@ async function main(): Promise<void> {
       assert.equal(r.isMock, false);
       assert.equal(r.provider.name, "huggingface");
       assert.equal(r.provider.model, DEFAULT_HF_MODEL);
+    },
+  );
+
+  // Unset + OpenAI key only → still NOT openai (HF is default; OpenAI is opt-in)
+  await withEnv(
+    {
+      HF_TOKEN: undefined,
+      HUGGINGFACE_API_KEY: undefined,
+      OPENAI_API_KEY: "sk-test",
+      CHECKMATE_MODEL_PROVIDER: undefined,
+      CHECKMATE_DRY_RUN: undefined,
+      ANTHROPIC_API_KEY: undefined,
+    },
+    () => {
+      const env = getProviderFromEnv();
+      assert.equal(env.mode, "unset");
+      assert.match(env.note, /huggingface/i);
+      assert.match(env.note, /HF_TOKEN/);
+      const r = resolveProvider("01-auth-idor");
+      assert.equal(r.isMock, true);
+    },
+  );
+
+  // Explicit openai + key → openai
+  await withEnv(
+    {
+      HF_TOKEN: undefined,
+      OPENAI_API_KEY: "sk-test",
+      CHECKMATE_MODEL_PROVIDER: "openai",
+      CHECKMATE_DRY_RUN: undefined,
+      ANTHROPIC_API_KEY: undefined,
+      CHECKMATE_MODEL: undefined,
+    },
+    () => {
+      const env = getProviderFromEnv();
+      assert.equal(env.mode, "openai");
+      const r = resolveProvider("01-auth-idor");
+      assert.equal(r.mode, "openai");
+      assert.equal(r.provider.model, "gpt-4o-mini");
+    },
+  );
+
+  // Unset + no keys → unset (resolveProvider falls back to mock)
+  await withEnv(
+    {
+      HF_TOKEN: undefined,
+      HUGGINGFACE_API_KEY: undefined,
+      OPENAI_API_KEY: undefined,
+      CHECKMATE_MODEL_PROVIDER: undefined,
+      CHECKMATE_DRY_RUN: undefined,
+      ANTHROPIC_API_KEY: undefined,
+    },
+    () => {
+      const env = getProviderFromEnv();
+      assert.equal(env.mode, "unset");
+      assert.match(env.note, /HF_TOKEN/);
+      const r = resolveProvider("01-auth-idor");
+      assert.equal(r.isMock, true);
+    },
+  );
+
+  // Mock still works without keys
+  await withEnv(
+    {
+      HF_TOKEN: undefined,
+      OPENAI_API_KEY: undefined,
+      CHECKMATE_MODEL_PROVIDER: "mock",
+      CHECKMATE_DRY_RUN: undefined,
+    },
+    () => {
+      const env = getProviderFromEnv();
+      assert.equal(env.mode, "mock");
+      const r = resolveProvider("01-auth-idor");
+      assert.equal(r.isMock, true);
     },
   );
 

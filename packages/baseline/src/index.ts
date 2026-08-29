@@ -7,7 +7,7 @@ export type {
   ToolSpec,
   ProviderMode,
 } from "./provider.js";
-export { getProviderFromEnv } from "./provider.js";
+export { getProviderFromEnv, DEFAULT_MODEL_PROVIDER } from "./provider.js";
 export { MockModelProvider } from "./mock-provider.js";
 export { OpenAIProvider } from "./openai-provider.js";
 export {

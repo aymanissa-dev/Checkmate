@@ -81,7 +81,23 @@ Evaluation-first log of hypotheses, measurements, and keep/kill decisions.
 
 ---
 
+## ITERATION: Hugging Face as default provider
+
+- **Date:** 2026-08-29
+- **Hypothesis:** Making Hugging Face the default (unset) provider removes OpenAI as the primary path so live eval and docs align on one open default.
+- **Change:**
+  - `CHECKMATE_MODEL_PROVIDER` unset → `huggingface`; default model `Qwen/Qwen2.5-7B-Instruct`
+  - OpenAI only when `CHECKMATE_MODEL_PROVIDER=openai` **and** `OPENAI_API_KEY`
+  - `--live` without `HF_TOKEN` / `HUGGINGFACE_API_KEY` → `SKIPPED-NO-KEY` (OpenAI key alone does not satisfy default)
+  - Mock / `--mock` still works with no keys
+  - Docs + resource parity updated (HF default for baseline and Checkmate)
+- **Why:** User confirmed HF should be the primary default; OpenAI remains optional secondary.
+- **Metric before/after:** Still **pending keyed live run** — not fabricated.
+- **Decision:** **Keep** HF as default provider.
+
+---
+
 ## Stage: CHECKMATE (measurement)
 
-- Status: harness + Phase E report + Phase G product UI + HF provider ready; **real model metrics SKIPPED (no API key)**
-- Next: human completes `PROVIDE_CHECKLIST.md` (OpenAI **or** HF) → live eval → fill changelog metrics → hot take → video
+- Status: harness + Phase E report + Phase G product UI + **HF default provider** ready; **real model metrics SKIPPED (no HF_TOKEN)**
+- Next: human completes `PROVIDE_CHECKLIST.md` (HF default, or explicit OpenAI) → live eval → fill changelog metrics → hot take → video

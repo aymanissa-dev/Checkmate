@@ -112,7 +112,7 @@ pnpm view:results
 
 ## Limitations
 
-- Live eval requires `OPENAI_API_KEY` or `HF_TOKEN` / `HUGGINGFACE_API_KEY` (`CHECKMATE_MODEL_PROVIDER=huggingface`); Anthropic not implemented
+- Live eval defaults to **Hugging Face** (`HF_TOKEN` / `HUGGINGFACE_API_KEY`); OpenAI is optional (`CHECKMATE_MODEL_PROVIDER=openai` + `OPENAI_API_KEY`); Anthropic not implemented
 - Mock scores are harness smoke, not model performance
 - Change Contract is a UI stub; no auto-fix / GitHub App / webhooks
 - Engineering map for live runs is derived or sample-authored; LLM-authored rich maps are optional later

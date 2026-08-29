@@ -51,23 +51,23 @@ Mock/dry-run exercises the harness. **Scores from mock mode are not model evalua
 ## Live LLM path (after keys)
 
 1. Complete [PROVIDE_CHECKLIST.md](./PROVIDE_CHECKLIST.md)  
-2. `cp .env.example .env` → set **either** `OPENAI_API_KEY` **or** `HF_TOKEN` / `HUGGINGFACE_API_KEY` (never commit)  
+2. `cp .env.example .env` → set **`HF_TOKEN`** / `HUGGINGFACE_API_KEY` (default provider; never commit)  
 3. Optional: `CHECKMATE_MODEL` — **same model for baseline and Checkmate**
-   - OpenAI default: `gpt-4o-mini`
-   - Hugging Face default: `Qwen/Qwen2.5-7B-Instruct`
-4. Optional: `CHECKMATE_MODEL_PROVIDER=openai` | `huggingface` | `hf`
+   - Default (HF): `Qwen/Qwen2.5-7B-Instruct`
+   - OpenAI opt-in: `gpt-4o-mini` when `CHECKMATE_MODEL_PROVIDER=openai`
+4. Optional: `CHECKMATE_MODEL_PROVIDER` — unset/`huggingface`/`hf` (default) | `openai` | `mock`
 
 ```bash
-pnpm evaluate -- --live 01-auth-idor   # subset first (auto provider from key)
+pnpm evaluate -- --live 01-auth-idor   # subset first (default: Hugging Face)
 pnpm evaluate -- --live                # full corpus
 
-# Hugging Face explicitly:
-CHECKMATE_MODEL_PROVIDER=huggingface pnpm evaluate -- --live 01-auth-idor
+# Optional OpenAI path:
+# CHECKMATE_MODEL_PROVIDER=openai OPENAI_API_KEY=... pnpm evaluate -- --live 01-auth-idor
 
 pnpm view:results
 ```
 
-If `--live` is passed but **no key** for the selected provider is present: harness stays mock, labels `SKIPPED-NO-KEY`, live metric placeholders remain `null`. **Do not invent numbers.**
+If `--live` is passed but **no `HF_TOKEN`** (default provider) is present: harness stays mock, labels `SKIPPED-NO-KEY`, live metric placeholders remain `null`. **Do not invent numbers.** OpenAI alone without `CHECKMATE_MODEL_PROVIDER=openai` does **not** satisfy the live key check.
 
 **HF notes:** Uses OpenAI-compatible router `https://router.huggingface.co/v1`. Agent tool loop uses structured JSON `tool_call`/`final` (same as OpenAI path here) — reliable HF-compatible mode. Token needs Inference Providers permission. Some models (e.g. Llama) require accepting a license on the model card; default Qwen avoids that.
 
@@ -78,7 +78,7 @@ If `--live` is passed but **no key** for the selected provider is present: harne
 | Cases | same 10 | same 10 |
 | Tools | list_files, read_file, search, run_command | same |
 | Finding schema | shared Zod | shared |
-| Model (live) | `CHECKMATE_MODEL` / OpenAI or Hugging Face | same env |
+| Model (live) | `CHECKMATE_MODEL` / default Hugging Face (OpenAI opt-in) | same env |
 | Budget | 40 tool calls / 180s | 48 / 240s |
 
 Independent variable = **investigation procedure** (mental model + verify).
@@ -108,7 +108,7 @@ pnpm evaluate:score 01-auth-idor artifacts/01-auth-idor/checkmate-findings.json
 ## Incomplete / skipped
 
 - Anthropic provider: not implemented  
-- Real LLM CDR: **SKIPPED** until `OPENAI_API_KEY` or `HF_TOKEN` (see changelog)  
+- Real LLM CDR: **SKIPPED** until `HF_TOKEN` (default) or explicit OpenAI provider + key (see changelog)  
 - GitHub App / auto-fix / webhooks: out of scope  
 - Change Contract: UI stub only in this phase  
  

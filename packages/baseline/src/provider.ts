@@ -47,6 +47,9 @@ export type ProviderMode =
   | "anthropic"
   | "unset";
 
+/** Default when CHECKMATE_MODEL_PROVIDER is unset. OpenAI is opt-in only. */
+export const DEFAULT_MODEL_PROVIDER = "huggingface" as const;
+
 export function getProviderFromEnv(): {
   mode: ProviderMode;
   note: string;
@@ -62,7 +65,7 @@ export function getProviderFromEnv(): {
         note: "openai requested but OPENAI_API_KEY missing",
       };
     }
-    return { mode: "openai", note: "OpenAI provider selected" };
+    return { mode: "openai", note: "OpenAI provider selected (explicit)" };
   }
   if (isHuggingFaceProviderName(explicit)) {
     if (!getHfToken()) {
@@ -85,21 +88,21 @@ export function getProviderFromEnv(): {
     }
     return { mode: "anthropic", note: "Anthropic provider selected" };
   }
-  // Implicit selection when provider unset: prefer OpenAI, then HF, then Anthropic
-  if (process.env.OPENAI_API_KEY?.trim()) {
-    return { mode: "openai", note: "OpenAI provider selected (OPENAI_API_KEY)" };
+  if (explicit) {
+    return {
+      mode: "unset",
+      note: `Unknown CHECKMATE_MODEL_PROVIDER=${explicit}`,
+    };
   }
+  // Default provider when unset: Hugging Face (OpenAI only if CHECKMATE_MODEL_PROVIDER=openai)
   if (getHfToken()) {
     return {
       mode: "huggingface",
-      note: "Hugging Face provider selected (HF_TOKEN / HUGGINGFACE_API_KEY)",
+      note: "Hugging Face provider (default when CHECKMATE_MODEL_PROVIDER unset)",
     };
-  }
-  if (process.env.ANTHROPIC_API_KEY?.trim()) {
-    return { mode: "anthropic", note: "Anthropic provider selected" };
   }
   return {
     mode: "unset",
-    note: "No API key / provider — use CHECKMATE_DRY_RUN=1 or CHECKMATE_MODEL_PROVIDER=mock",
+    note: "Default provider is huggingface but HF_TOKEN / HUGGINGFACE_API_KEY missing — use CHECKMATE_DRY_RUN=1 / CHECKMATE_MODEL_PROVIDER=mock, or set HF_TOKEN for live (OpenAI: set CHECKMATE_MODEL_PROVIDER=openai + OPENAI_API_KEY)",
   };
 }

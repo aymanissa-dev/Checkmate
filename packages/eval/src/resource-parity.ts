@@ -20,9 +20,12 @@ export const RESOURCE_PARITY = {
     "CHECKMATE_MODEL",
     "CHECKMATE_MODEL_PROVIDER",
   ] as const,
-  /** Default model when live OpenAI; HF default is Qwen/Qwen2.5-7B-Instruct via provider. */
-  defaultModel: "gpt-4o-mini",
+  /** Default provider when CHECKMATE_MODEL_PROVIDER unset. */
+  defaultProvider: "huggingface",
+  /** Default live model (HF path). OpenAI opt-in uses defaultOpenaiModel. */
+  defaultModel: "Qwen/Qwen2.5-7B-Instruct",
   defaultHfModel: "Qwen/Qwen2.5-7B-Instruct",
+  defaultOpenaiModel: "gpt-4o-mini",
   baselineBudget: {
     maxToolCalls: 40,
     maxWallTimeMs: 180_000,
@@ -35,7 +38,7 @@ export const RESOURCE_PARITY = {
   differencesExplained: [
     "Checkmate adds mental-model + hypothesize + verify stages (procedure).",
     "Checkmate tool/time budget is slightly higher to allow sandbox proofs.",
-    "Same provider/model env when live (OpenAI or Hugging Face); mock mode is harness smoke only.",
+    "Same default provider/model when live (Hugging Face / Qwen); OpenAI is opt-in via CHECKMATE_MODEL_PROVIDER=openai; mock mode is harness smoke only.",
   ],
 } as const;
 

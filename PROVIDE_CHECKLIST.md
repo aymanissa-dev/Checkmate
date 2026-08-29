@@ -8,18 +8,19 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
 
 ## Must-have for live metrics
 
-- [ ] **Model API key** — set in `.env` (gitignored), pick **one** path:
-  - **OpenAI:** `OPENAI_API_KEY=...`
-  - **Hugging Face:** `HF_TOKEN=...` (or `HUGGINGFACE_API_KEY=...`)
+- [ ] **Model API key** — set in `.env` (gitignored):
+  - **Default — Hugging Face:** `HF_TOKEN=...` (or `HUGGINGFACE_API_KEY=...`)
     - Create a fine-grained token with **“Make calls to Inference Providers”** permission
     - Enable Inference Providers / free credits in HF account settings if prompted
+  - **Optional — OpenAI (secondary):** only if you set `CHECKMATE_MODEL_PROVIDER=openai` **and** `OPENAI_API_KEY=...`
   - Optional later: `ANTHROPIC_API_KEY=...` (provider **not implemented** yet; do not rely on it)
   - Template: copy `.env.example` → `.env`
 - [ ] **Model choice** — confirm or override default:
-  - OpenAI default: `gpt-4o-mini` via `CHECKMATE_MODEL` (when provider is openai / OpenAI key)
-  - Hugging Face default: `Qwen/Qwen2.5-7B-Instruct` (when `CHECKMATE_MODEL_PROVIDER=huggingface` or only HF key)
+  - **Default provider:** `huggingface` when `CHECKMATE_MODEL_PROVIDER` is unset
+  - **Default model (HF):** `Qwen/Qwen2.5-7B-Instruct`
+  - OpenAI (opt-in): `gpt-4o-mini` when `CHECKMATE_MODEL_PROVIDER=openai`
   - Override: `CHECKMATE_MODEL=<id>` — **same model for baseline and Checkmate**
-  - Provider: `CHECKMATE_MODEL_PROVIDER=openai` | `huggingface` | `hf` | `mock`
+  - Provider: `CHECKMATE_MODEL_PROVIDER=` unset/`huggingface`/`hf` | `openai` | `mock`
   - HF uses OpenAI-compatible router `https://router.huggingface.co/v1` (structured JSON tool loop; optional `CHECKMATE_HF_NATIVE_TOOLS=1`)
   - Note: Meta Llama models on HF often require accepting the model license on the model card; Qwen default avoids that gate
 - [ ] **Case scope for first live run** — pick one:
@@ -47,7 +48,7 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
   - Team / display name as you will submit: `___`
   - Any required links beyond the public GitHub repo: `___`
 
-**Note:** Product UI + sample analysis already work offline. Keys are only needed for live CDR / hot take from experiments.
+**Note:** Product UI + sample analysis already work offline. Keys are only needed for live CDR / hot take from experiments. Mock mode needs **no** keys.
 
 ## Blocking live eval or viewing (check if anything else)
 
@@ -63,20 +64,18 @@ We will run (exact commands):
 ```bash
 cp .env.example .env   # if not done; paste key(s)
 
-# OpenAI path:
+# Default Hugging Face path:
+# HF_TOKEN=hf_...
+# optional: CHECKMATE_MODEL=Qwen/Qwen2.5-7B-Instruct
+# (CHECKMATE_MODEL_PROVIDER defaults to huggingface when unset)
+
+# Optional OpenAI path (secondary):
+# CHECKMATE_MODEL_PROVIDER=openai
 # OPENAI_API_KEY=...
 # optional: CHECKMATE_MODEL=gpt-4o-mini
 
-# Hugging Face path:
-# HF_TOKEN=hf_...
-# CHECKMATE_MODEL_PROVIDER=huggingface
-# optional: CHECKMATE_MODEL=Qwen/Qwen2.5-7B-Instruct
-
 # subset first (example):
 pnpm evaluate -- --live 01-auth-idor
-
-# HF explicitly:
-CHECKMATE_MODEL_PROVIDER=huggingface pnpm evaluate -- --live 01-auth-idor
 
 # or full corpus:
 pnpm evaluate -- --live
@@ -93,4 +92,4 @@ pnpm view:results   # or pnpm dev:web
 - Resource parity; aggregates **only live when `metricsAreLive`**
 - Reports also at `artifacts/results/comparison.md` + `comparison.json`
 
-Until keys are present, live CDR stays **pending** — we will not invent numbers.
+Until `HF_TOKEN` is present (or OpenAI is explicitly selected with its key), live CDR stays **pending** — we will not invent numbers. `--live` without the default HF key → `SKIPPED-NO-KEY`.
