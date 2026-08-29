@@ -3,31 +3,39 @@
 **Branch:** `cursor/checkmate-phase-abc-5df8`  
 **Base:** `main`  
 **Draft:** yes  
-**Title:** Phase A–C: Checkmate eval contracts, 10 cases, baseline harness
+**Title:** Phase A–D: Checkmate eval harness, 10 cases, baseline + staged verification loop
 
 ## Body
 
 ### Summary
 
-Implements **Phase A–C** of Checkmate for the micro1 Agentic Workflows Hackathon (evaluation-first). Full Checkmate advanced agent UI is **not** in this PR (Phase D+ stub only).
+Implements **Phase A–D** of Checkmate for the micro1 Agentic Workflows Hackathon (evaluation-first). Product UI is **not** in this PR (Phase G later).
 
-**Research question:** Can an evaluation-first agentic workflow (Checkmate: mental model → investigate → verify → report) outperform a fair one-shot senior-engineer review baseline on critical correctness/security/reliability defects — without leaking ground truth into the agent context?
+**Research question:** Can an evaluation-first agentic workflow (Checkmate: mental model → hypothesize → verify → report) outperform a fair one-shot senior-engineer review baseline on critical correctness/security/reliability defects — without leaking ground truth into the agent context?
 
-### Done (Phase A–C)
+### Done
 
+**Phase A–C**
 - Shared Zod contracts (`schemaVersion: 1`) for ApplicationMentalModel, Finding, Proof, EvaluationCase/truth, Trajectory
-- Sandbox tools: `list_files`, `read_file`, `search`, `run_command` (cwd restriction, timeouts, truth denial)
-- Deterministic scorer (no LLM) + truth-isolation guard
-- **10** evaluation mini-apps under `cases/` with `truth.json` (scorer-only)
-- Fair one-shot baseline runner with budgets, OpenAI provider wiring, and **mock/dry-run** for CI
-- Sample mock trajectory: `trajectories/sample-baseline-01-auth-idor-mock.json`
-- Docs: README, ARCHITECTURE, REPRODUCTION, IMPROVEMENT_CHANGELOG (BASELINE stage; no invented metrics)
+- Sandbox tools: `list_files`, `read_file`, `search`, `run_command`
+- Deterministic scorer + truth-isolation guard
+- **10** evaluation mini-apps under `cases/`
+- Fair one-shot baseline runner (OpenAI + mock)
 
-### Remaining (Phase D+)
+**Phase D**
+- Checkmate single-agent staged loop: scope → understand → model → hypothesize → verify → report
+- Artifacts under `artifacts/<runId>/` (`mental_model.json`, `hypotheses.json`, `proofs/*`, `findings.json`, `report.md`)
+- Confirmed findings require proof `toolResultRefs` to real tool_result steps
+- `pnpm evaluate:checkmate -- --mock` completes all 10 cases under budget
+- `pnpm evaluate` runs baseline + checkmate + comparison table (labeled MOCK-SMOKE)
+- Sample trajectories under `trajectories/sample-*.json`
+- Changelog ITERATION entry with metrics **pending real LLM run** (no invented numbers)
 
-- Checkmate advanced loop (mental model + forced verify)
-- Real LLM baseline measurement numbers (requires API keys; not fabricated)
-- Anthropic provider (OpenAI + mock only for now)
+### Remaining
+
+- Real LLM measured comparison (requires API keys; not fabricated)
+- Anthropic provider
+- Phase G product UI / GitHub App / Change Contract
 
 ### Gates
 
@@ -36,6 +44,7 @@ Implements **Phase A–C** of Checkmate for the micro1 Agentic Workflows Hackath
 | A — Scorer + truth isolation on ≥2 fixtures, no LLM | Pass |
 | B — Case corpus + smoke happy paths | Pass (10/10) |
 | C — Baseline dry-run/mock under budget; real path wired | Pass (mock); real LLM skips without key |
+| D — Checkmate mock all 10 cases, mental_model present, guard, compare smoke | Pass (mock); real metrics pending keys |
 
 ### How to run
 
@@ -44,7 +53,8 @@ pnpm install
 pnpm run test:fixtures
 pnpm run guard:truth-isolation
 pnpm run smoke:cases
-pnpm evaluate:baseline -- --mock   # NOT a real model eval
-# Real LLM: set OPENAI_API_KEY then pnpm evaluate:baseline
-pnpm evaluate:checkmate            # stub — fails clearly until Phase D
+pnpm evaluate:baseline -- --mock
+pnpm evaluate:checkmate -- --mock
+pnpm evaluate                      # comparison table (MOCK-SMOKE only)
+# Real LLM: set OPENAI_API_KEY then pnpm evaluate:checkmate -- 01-auth-idor
 ```

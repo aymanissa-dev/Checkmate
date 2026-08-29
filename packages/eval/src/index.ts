@@ -175,6 +175,8 @@ export async function scoreCaseDir(
   return scoreFindings(evaluationCase, findingsDoc);
 }
 
+export type { ScoreReport, FindingsDocument, EvaluationCase };
+
 export function repoRootFromHere(importMetaUrl: string): string {
   // packages/eval/src -> repo root
   return path.resolve(path.dirname(new URL(importMetaUrl).pathname), "../../..");

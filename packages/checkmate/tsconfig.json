@@ -8,6 +8,8 @@
   "include": ["src/**/*"],
   "references": [
     { "path": "../schemas" },
-    { "path": "../sandbox" }
+    { "path": "../sandbox" },
+    { "path": "../eval" },
+    { "path": "../baseline" }
   ]
 }

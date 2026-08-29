@@ -39,6 +39,12 @@ importers:
 
   packages/checkmate:
     dependencies:
+      '@checkmate/baseline':
+        specifier: workspace:*
+        version: link:../baseline
+      '@checkmate/eval':
+        specifier: workspace:*
+        version: link:../eval
       '@checkmate/sandbox':
         specifier: workspace:*
         version: link:../sandbox

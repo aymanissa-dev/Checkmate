@@ -19,11 +19,20 @@ pnpm run test:fixtures
 pnpm run guard:truth-isolation
 pnpm run smoke:cases
 pnpm evaluate:baseline -- --mock
+pnpm evaluate:checkmate -- --mock
+pnpm evaluate                    # baseline + checkmate + comparison table (mock)
 ```
 
-Mock/dry-run uses a fixture provider to exercise the harness. **Scores from mock mode are not model evaluation results.**
+Mock/dry-run exercises the harness and Checkmate stages. **Scores from mock mode are not model evaluation results.**
 
-## Real LLM baseline
+### Gate D checks
+
+- Checkmate completes all 10 cases in mock mode under budget
+- `mental_model.json` present per case run
+- Truth-isolation guard passes on trajectories
+- Comparison table generates with `MOCK-SMOKE` labels
+
+## Real LLM baseline / Checkmate
 
 1. Copy `.env.example` → `.env`
 2. Set `OPENAI_API_KEY` (never commit secrets)
@@ -32,34 +41,32 @@ Mock/dry-run uses a fixture provider to exercise the harness. **Scores from mock
 
 ```bash
 pnpm evaluate:baseline -- 01-auth-idor
-# or all cases:
-pnpm evaluate:baseline
+pnpm evaluate:checkmate -- 01-auth-idor
+# or all cases + table:
+pnpm evaluate:compare -- --live
 ```
 
-If no key is present, the runner falls back to mock and labels output accordingly.
+If no key is present, runners fall back to mock and label output accordingly.
 
 ## Scoring only
 
 ```bash
 pnpm evaluate:score <caseId> [path/to/findings.json]
+# Checkmate findings mirror:
+pnpm evaluate:score 01-auth-idor artifacts/01-auth-idor/checkmate-findings.json
 ```
-
-## Checkmate
-
-```bash
-pnpm evaluate:checkmate
-```
-
-Expected: clear failure — advanced agent not implemented (Phase D+).
 
 ## Artifacts
 
-- `artifacts/<caseId>/findings.json` — produced findings (gitignored)
-- `artifacts/<caseId>/score.json` — scorer output (gitignored)
-- `trajectories/*.json` — run traces (sample committed for demo)
+- `artifacts/<caseId>/findings.json` — baseline findings (gitignored)
+- `artifacts/<caseId>/checkmate-findings.json` — latest Checkmate findings mirror
+- `artifacts/<runId>/` — full Checkmate stage tree
+- `artifacts/<caseId>/score.json` / `checkmate-score.json`
+- `artifacts/comparison-table.json` — from `pnpm evaluate`
+- `trajectories/*.json` — run traces (samples committed for demo)
 
 ## Incomplete / skipped paths
 
 - Anthropic provider: not implemented; use OpenAI or mock
 - Real LLM evaluation metrics: **not reported here** until keyed runs are completed
-- Checkmate agent metrics: **N/A** until Phase D+
+- Product UI (Phase G): not started
