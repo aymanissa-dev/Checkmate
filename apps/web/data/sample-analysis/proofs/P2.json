@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "P2",
+  "findingId": "F2",
+  "kind": "code-citation",
+  "summary": "Smoke path never asserts cross-user denial",
+  "result": "PROVEN",
+  "verified": true,
+  "artifactPath": "proofs/P2.json"
+}

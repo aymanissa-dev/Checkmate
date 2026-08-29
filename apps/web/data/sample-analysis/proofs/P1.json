@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "id": "P1",
+  "findingId": "F1",
+  "kind": "code-citation",
+  "summary": "getOrder discards authenticated uid — IDOR on detail route",
+  "claim": "GET /orders/:id must only return orders owned by the caller.",
+  "expected": "getOrder(id, uid) returns null when order.userId !== uid.",
+  "observed": "function getOrder(id, _uid) { return orders.get(id) ?? null; }",
+  "result": "PROVEN",
+  "verified": true,
+  "artifactPath": "proofs/P1.json"
+}

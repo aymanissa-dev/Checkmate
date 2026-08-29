@@ -1,61 +1,67 @@
-# Video script skeleton (≤5 min)
+# Video script (≤5 min)
 
-Target length: **under 5 minutes**. Narrative order follows the hackathon brief: problem → baseline → one realistic Checkmate execution → comparison → changelog (largest change + one removed experiment).
+Target length: **under 5 minutes**. Order: problem → baseline → one Checkmate execution → **product UI** → comparison → changelog honesty.
 
-Record after live eval if possible; until then, say clearly when footage is **mock/harness smoke**.
+Record after live eval if possible; until then, say clearly when footage is **mock/harness smoke** or **committed sample analysis**.
 
 ---
 
-## 0:00–0:40 — Problem
+## 0:00–0:35 — Problem
 
-- AI-built apps look finished; critical defects (IDOR, JWT `alg=none`, races, SSRF, …) are not visual.
+- AI-built apps look finished; critical defects are not visual.
 - Bottleneck: **independent verification**, not more generation.
 - Tagline: *Your AI built it. Checkmate proves it.*
 
-**On screen:** README research question; one case app file with a subtle bug.
+**On screen:** README research question; `cases/01-auth-idor/app/src/server.js` `getOrder` ignoring uid.
 
-## 0:40–1:30 — Baseline
+## 0:35–1:15 — Baseline
 
 - Fair one-shot senior-engineer review.
-- Same cases, same tools (`list_files`, `read_file`, `search`, `run_command`), same finding schema.
-- Budget: 40 tool calls / 180s.
-- Show a baseline trajectory snippet and findings JSON.
+- Same tools and finding schema; budget 40 / 180s.
+- Show baseline trajectory snippet.
 
-**Say:** “Baseline is honest — not a sabotaged agent. The independent variable is procedure.”
+**Say:** “Baseline is honest. The independent variable is procedure.”
 
-## 1:30–3:10 — One realistic Checkmate run
+## 1:15–2:40 — One Checkmate run
 
-Pick **one** case (prefer `01-auth-idor` or challenging `10-challenge-eventual` / webhook case).
-
-Walk stages quickly:
+Case: **01-auth-idor** (sample or live).
 
 | Stage | Show |
 |-------|------|
-| Scope | `scope.md` |
-| Understand | `draft_notes.md` |
-| Model | `mental_model.json` (FACT vs ASSUMPTION) |
+| Scope / Understand | `scope.md`, `draft_notes.md` |
+| Model | `mental_model.json` |
 | Hypothesize | `hypotheses.json` |
 | Verify | proof with `toolResultRefs` |
-| Report | `findings.json` + `report.md` |
+| Report | `findings.json` |
 
-**Emphasize:** confirmed findings need sandbox evidence; no ground-truth leak (`truth.json` scorer-only).
+**Emphasize:** confirmed needs evidence; `truth.json` never in agent context.
 
-## 3:10–4:10 — Comparison
+## 2:40–3:40 — Product UI walk
 
-- Open results viewer (`pnpm view:results`) or `artifacts/results/comparison.md`.
-- Point at **label**: `LIVE` vs `MOCK-SMOKE` — never confuse them.
-- Resource parity: same model env, same tools; Checkmate 48 / 240s headroom for verify.
-- If live metrics exist: mean recall / per-case table. If not: say “metrics pending keys” — **do not invent CDR**.
+`pnpm view:results` → http://127.0.0.1:4173/
 
-## 4:10–4:50 — Changelog + honesty
+1. **Overview** — ship blocked, next best action  
+2. **Map** — click IDOR route node → risks/files  
+3. **Roadmap** — NOW / NEXT / LATER  
+4. **Proofs** — expected vs observed; PROVEN vs INSUFFICIENT  
 
-- `IMPROVEMENT_CHANGELOG.md`: baseline → mental-model loop → Phase E readiness.
-- **Largest contributing change:** staged verify-before-confirm (hypothesis; measured when live).
-- **Removed / not built:** multi-agent swarm, GitHub App, fabricated leaderboard — call one out as intentional cut.
+**Say:** “This is the engineering product surface — not a chat log.”
+
+## 3:40–4:25 — Comparison
+
+- **Eval** tab or `artifacts/results/comparison.md`
+- Label: `LIVE` vs `MOCK-SMOKE` — never confuse them
+- Resource parity; if no keys: “metrics pending” — **do not invent CDR**
+
+## 4:25–4:50 — Changelog + cuts
+
+- `IMPROVEMENT_CHANGELOG.md`: baseline → verify loop → comparison readiness → product UI
+- Largest bet: verify-before-confirm
+- Intentional cut: multi-agent swarm / GitHub App / fabricated leaderboard
 
 ## 4:50–5:00 — Close
 
-- Reproducibility: `REPRODUCTION.md` + `pnpm evaluate`.
+- `REPRODUCTION.md` + offline demo without keys
 - Ask: can verification procedure beat one-shot review on critical defects?
 
 ---
@@ -63,7 +69,7 @@ Walk stages quickly:
 ## B-roll checklist
 
 - [ ] `pnpm evaluate` terminal (label visible)
-- [ ] Results viewer table
+- [ ] UI: Overview → Map → Roadmap → Proofs
 - [ ] One proof JSON + trajectory tool_result
-- [ ] Changelog entry
-- [ ] Sample paths: `trajectories/sample-baseline-01-auth-idor-mock.json`, `trajectories/sample-checkmate-01-auth-idor-mock.json`
+- [ ] Changelog entry (live metrics pending)
+- [ ] Sample trajectories paths

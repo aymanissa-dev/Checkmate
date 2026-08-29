@@ -1,0 +1,33 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "summary": "HTTP order service with user-scoped orders and lookup by id. Callers authenticate via X-User-Id; list is filtered by owner, but detail lookup does not re-check ownership.",
+  "components": [
+    "src/server.js (HTTP router + order handlers)",
+    "in-memory order store (Map)",
+    "smoke.js (happy-path checks)"
+  ],
+  "trustBoundaries": [
+    "HTTP caller → authenticated API (X-User-Id header)",
+    "authenticated caller → order detail by id",
+    "process memory → order records (no external DB)"
+  ],
+  "dataStores": [
+    "in-memory orders Map (ord-id → {userId, item, amount})"
+  ],
+  "entryPoints": [
+    "GET /health",
+    "GET /orders",
+    "POST /orders",
+    "GET /orders/:id"
+  ],
+  "assumptions": [
+    "X-User-Id is treated as the authenticated principal (no session store).",
+    "Agents only see cases/<id>/app — truth.json is scorer-only.",
+    "IDOR risk concentrates on getOrder / GET /orders/:id."
+  ],
+  "openQuestions": [
+    "Is there any secondary ownership check after Map lookup?",
+    "Do smoke tests assert cross-user denial on detail?"
+  ]
+}

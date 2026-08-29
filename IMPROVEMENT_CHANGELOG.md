@@ -46,7 +46,24 @@ Evaluation-first log of hypotheses, measurements, and keep/kill decisions.
 
 ---
 
+## ITERATION: Product UI + submission pack (Phase G)
+
+- **Date:** 2026-08-29
+- **Hypothesis:** A calm, high-density product UI over committed sample analysis (Overview / Map / Roadmap / Proofs / Changes) plus judge-ready README/reproduction will make the verification workflow demoable without API keys — without inventing live CDR.
+- **Change:**
+  - Replaced thin results viewer with product UI in `apps/web` (rail nav, sample-analysis fixtures, SVG architecture map, deterministic NOW/NEXT/LATER, proof expected/observed, Change Contract stub, Eval tab)
+  - `pnpm view:results` / `pnpm dev:web` serve the app offline from `apps/web/data/sample-analysis/`
+  - Strengthened README (Problem → Why → Solution → Demo → Architecture → Baseline → Evaluation → Changelog/Reproduction/Trajectories/Limitations/Main failure mode/Hot take)
+  - Judge-ready `REPRODUCTION.md`; `docs/HOT_TAKE.md` stub; refined video script; architecture docs for UI
+- **Why:** Hackathon demo must show Understand→Guide→Prove→Protect end-to-end before keyed runs.
+- **Metric before:** Pending real LLM baseline/Checkmate — **not fabricated**.
+- **Metric after:** Still **pending user keys** — no live CDR invented. UI demo uses MOCK-SMOKE / sample labels only.
+- **Decision:** **Keep** product UI + submission docs; run live eval only after `PROVIDE_CHECKLIST.md` is filled.
+- **Notes:** Map can derive from `mental_model.json` when `engineering_map.json` is absent; sample ships a richer authored map for the IDOR case.
+
+---
+
 ## Stage: CHECKMATE (measurement)
 
-- Status: harness + Phase E report/viewer ready; **real model metrics SKIPPED (no API key)**
-- Next: human completes `PROVIDE_CHECKLIST.md` → live eval → fill changelog metrics → video
+- Status: harness + Phase E report + Phase G product UI ready; **real model metrics SKIPPED (no API key)**
+- Next: human completes `PROVIDE_CHECKLIST.md` → live eval → fill changelog metrics → hot take → video

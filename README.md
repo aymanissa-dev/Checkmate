@@ -2,94 +2,136 @@
 
 **Research question:** Can an evaluation-first agentic workflow (Checkmate) that builds an application mental model and verifies findings outperform a fair one-shot senior-engineer review baseline on critical correctness/security/reliability defects — without leaking ground truth into the agent context?
 
-Checkmate is a hackathon project for the **micro1 Agentic Workflows Hackathon**. This repo prioritizes **evaluation contracts, case corpus, fair baseline, Checkmate staged verification, and measured comparison readiness** before a full product UI.
+**Tagline:** *Your AI built it. Checkmate proves it.*
 
-## Who this is for
+Checkmate is a submission for the **micro1 Agentic Workflows Hackathon**.
 
-- Hackathon judges / reviewers evaluating agentic code-review workflows
-- Engineers comparing baseline vs Checkmate on planted critical defects
+---
 
-## What's in the repo (Phase A–E)
+## Problem
 
-| Area | Status |
-|------|--------|
-| Shared Zod contracts (`packages/schemas`) | Done |
-| Sandboxed tools (`packages/sandbox`) | Done |
-| Deterministic scorer (`packages/eval`, frozen `matchKeys-v1`) | Done |
-| 10 mini-app evaluation cases (`cases/`) | Done |
-| Fair one-shot baseline runner (`packages/baseline`) | Done |
-| Checkmate staged loop (`packages/checkmate`) | Done (Phase D) |
-| Measured comparison reports + results viewer | Done (Phase E readiness) |
-| Live LLM metrics | **SKIPPED** until API key (see checklist) |
-| Full product web UI / GitHub App | Not this phase |
+AI-built apps can look finished while hiding critical defects: IDOR, JWT `alg=none`, SQL concat, SSRF, races, path traversal, forged webhooks, false-green tests, prompt/tool leaks, and eventual-consistency gaps. The bottleneck is **independent verification**, not more generation.
 
-## Quick start
+## Why this matters
+
+One-shot “review this repo” agents often emit confident findings without sandbox proof. Judges and engineers need a procedure that separates **speculation** from **evidence**, and a fair baseline so improvements are measurable — not theatrical.
+
+## Solution — Understand → Guide → Prove → Protect
+
+| Stage | What Checkmate does |
+|-------|---------------------|
+| **Understand** | Scope + draft notes + `mental_model.json` (components, trust boundaries, entry points, assumptions) |
+| **Guide** | Hypotheses with proposed checks; deterministic NOW / NEXT / LATER roadmap in the UI |
+| **Prove** | Sandbox tools (`list_files`, `read_file`, `search`, `run_command`); proofs with `toolResultRefs`; PROVEN / DISPROVEN / INSUFFICIENT |
+| **Protect** | Ship blockers from confirmed critical/high findings; Change Contract stub for before/after (later phase expands this) |
+
+Single agent, staged state machine — not a multi-agent swarm. Same tool surface as the baseline; independent variable = **investigation procedure**.
+
+## Demo (no API keys required)
 
 ```bash
 pnpm install
-pnpm run test:fixtures          # Gate A: score hand-written findings (no LLM)
-pnpm run guard:truth-isolation  # ensure no truth leaks into agent paths
-pnpm run smoke:cases            # happy-path smokes for case apps
-pnpm evaluate:baseline -- --mock      # dry-run baseline (NOT real model eval)
-pnpm evaluate:checkmate -- --mock     # dry-run Checkmate staged loop (NOT real model eval)
-pnpm evaluate                         # baseline + checkmate + comparison report (mock)
-pnpm view:results                     # http://127.0.0.1:4173/
-pnpm evaluate:score 01-auth-idor cases/01-auth-idor/fixtures/sample-findings.json
+pnpm view:results   # or: pnpm dev:web
+# → http://127.0.0.1:4173/
 ```
 
-### Before live eval — what you must provide
-
-See **[PROVIDE_CHECKLIST.md](./PROVIDE_CHECKLIST.md)** (API keys, model choice, budget, sandbox consent, etc.).
-
-### Real LLM runs (optional)
+Offline UI loads committed `apps/web/data/sample-analysis/` (Overview → Map → Roadmap → Proofs → Changes) plus Eval comparison (mock-labeled).
 
 ```bash
-cp .env.example .env
-# set OPENAI_API_KEY
-pnpm evaluate -- --live 01-auth-idor   # subset first
-pnpm evaluate -- --live                # all 10 when ready
-pnpm view:results
+pnpm evaluate                 # baseline + checkmate + comparison (MOCK-SMOKE)
+pnpm run test:fixtures
+pnpm run guard:truth-isolation
 ```
 
-Without an API key, runners default to **mock/dry-run**. `--live` without a key is labeled **SKIPPED-NO-KEY**. Mock scores are harness smoke only — **not** model performance.
+## Architecture
 
-## Checkmate stages (single agent)
+```
+cases/<id>/app  ──►  baseline (one-shot)     ──► findings + trajectory
+                └──►  checkmate (staged)     ──► mental_model + proofs + findings
+                              │
+                              ▼
+                         packages/eval (truth.json scorer-only)
+                              │
+                              ▼
+                    artifacts/results/comparison.*
+                              │
+                              ▼
+                         apps/web (product UI)
+```
 
-| Stage | Artifact |
-|-------|----------|
-| 0 Scope | `scope.md` |
-| 1 Understand | `draft_notes.md` |
-| 2 Model | `mental_model.json` |
-| 3 Hypothesize | `hypotheses.json` |
-| 4 Verify | `proofs/*` (sandbox checks) |
-| 5 Report | `findings.json` + `report.md` |
+Packages: `schemas`, `sandbox`, `eval`, `baseline`, `checkmate`, `apps/web`. Details: [ARCHITECTURE.md](./ARCHITECTURE.md).
 
-Artifacts land under `artifacts/<runId>/` with mirrors under `artifacts/<caseId>/` for scoring. Same tool surface as baseline: `list_files`, `read_file`, `search`, `run_command`. Confirmed findings must cite `toolResultRefs`; otherwise they are downgraded to unverified.
+## Baseline
 
-## Case corpus
+Fair one-shot senior-engineer review: shared finding schema, same four tools, budget **40 tool calls / 180s**, no mental-model stage, no forced verify. Not a sabotaged agent.
 
-Each case lives under `cases/<id>/`:
+## Evaluation
 
-- `app/` — agent-visible mini-app (Node, dependency-light)
-- `truth.json` — **scorer-only** ground truth (never in agent workspace)
-- `CASE.md` — author notes
-- optional `fixtures/sample-findings.json` — hand-written findings for scorer tests
+- **10** planted-defect mini-apps under `cases/`
+- Frozen match policy `matchKeys-v1-primary-greedy`
+- Labels: `MOCK-SMOKE` | `LIVE` | `SKIPPED-NO-KEY` — **no fabricated CDR**
+- Live metrics: pending human API keys ([PROVIDE_CHECKLIST.md](./PROVIDE_CHECKLIST.md))
 
-## Sample trajectories (submission)
+| | Baseline | Checkmate |
+|---|---|---|
+| Tools | list_files, read_file, search, run_command | same |
+| Model (live) | `CHECKMATE_MODEL` / OpenAI | same env |
+| Budget | 40 / 180s | 48 / 240s (verify headroom) |
+
+## Product UI
+
+| View | Purpose |
+|------|---------|
+| **Overview** | Repo/case, analysis id, ship status, blockers, priorities, next action |
+| **Map** | Architecture graph from mental model / `engineering_map.json` |
+| **Roadmap** | NOW / NEXT / LATER (deterministic from severity × status) |
+| **Proofs** | Claim, expected/observed, artifacts, PROVEN/DISPROVEN/INSUFFICIENT |
+| **Changes** | Change Contract stub (before/after fixture) |
+| **Eval** | Baseline vs Checkmate comparison table |
+
+## Changelog
+
+See [IMPROVEMENT_CHANGELOG.md](./IMPROVEMENT_CHANGELOG.md) — stages BASELINE → mental-model loop → measured comparison readiness → **product UI**. Live metric rows remain **pending user keys**.
+
+## Reproduction
+
+Judge-ready steps: [REPRODUCTION.md](./REPRODUCTION.md).
+
+```bash
+pnpm install
+pnpm run test:fixtures && pnpm run guard:truth-isolation && pnpm run smoke:cases
+pnpm evaluate
+pnpm view:results
+# Live (after keys): pnpm evaluate -- --live
+```
+
+## Trajectories
 
 - `trajectories/sample-baseline-01-auth-idor-mock.json`
 - `trajectories/sample-checkmate-01-auth-idor-mock.json`
 
-## Architecture & docs
+## Limitations
 
-- [ARCHITECTURE.md](./ARCHITECTURE.md)
-- [REPRODUCTION.md](./REPRODUCTION.md)
-- [IMPROVEMENT_CHANGELOG.md](./IMPROVEMENT_CHANGELOG.md)
-- [PROVIDE_CHECKLIST.md](./PROVIDE_CHECKLIST.md) — human inputs for live eval
-- [docs/VIDEO_SCRIPT.md](./docs/VIDEO_SCRIPT.md) — ≤5 min narrative skeleton
+- Live OpenAI eval requires `OPENAI_API_KEY`; Anthropic provider not implemented
+- Mock scores are harness smoke, not model performance
+- Change Contract is a UI stub; no auto-fix / GitHub App / webhooks
+- Engineering map for live runs is derived or sample-authored; LLM-authored rich maps are optional later
 
-## Safety
+## Main failure mode
 
-- Ground truth is isolated from agent tool roots (`cases/<id>/app` only).
-- Sandbox blocks `truth.json` access and path escape.
-- `pnpm run guard:truth-isolation` checks trajectories/artifacts/apps for leak patterns.
+**Unverified confidence** — agents stating severity without sandbox evidence. Checkmate downgrades confirmations that lack `toolResultRefs`; the UI marks INSUFFICIENT distinctly from PROVEN.
+
+## Hot take
+
+Placeholder until live experiments: [docs/HOT_TAKE.md](./docs/HOT_TAKE.md).
+
+## Case corpus & safety
+
+Each case: `app/` (agent-visible), `truth.json` (scorer-only), `CASE.md`. Sandbox blocks truth access; `pnpm run guard:truth-isolation` checks leaks.
+
+## Docs index
+
+- [PROVIDE_CHECKLIST.md](./PROVIDE_CHECKLIST.md) — keys & checklist (user fills at end)
+- [docs/VIDEO_SCRIPT.md](./docs/VIDEO_SCRIPT.md)
+- [docs/HOT_TAKE.md](./docs/HOT_TAKE.md)
+- [docs/PR_DRAFT.md](./docs/PR_DRAFT.md)

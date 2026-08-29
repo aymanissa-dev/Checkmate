@@ -1,10 +1,11 @@
 {
   "name": "@checkmate/web",
   "private": true,
-  "version": "0.1.0",
-  "description": "Minimal static results viewer for Checkmate evaluation reports",
+  "version": "0.2.0",
+  "description": "Checkmate product UI — Overview, Map, Roadmap, Proofs, Changes, Eval",
   "scripts": {
     "start": "node ./serve.mjs",
-    "view": "node ./serve.mjs"
+    "view": "node ./serve.mjs",
+    "dev": "node ./serve.mjs"
   }
 }

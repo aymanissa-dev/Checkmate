@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "status": "stub",
+  "title": "Change Contract",
+  "note": "Full Change Contract workflow lands in a later phase. This stub shows the shape for before/after review.",
+  "caseId": "01-auth-idor",
+  "before": {
+    "summary": "getOrder(id, _uid) returns orders.get(id) with no ownership comparison.",
+    "files": ["src/server.js"],
+    "risk": "Any authenticated caller can read any order by id (IDOR)."
+  },
+  "after": {
+    "summary": "getOrder(id, uid) returns the order only when order.userId === uid; else null → 404.",
+    "files": ["src/server.js", "smoke.js"],
+    "expectedProof": "Cross-user GET /orders/ord-2 as alice yields 404; owned fetch still 200."
+  },
+  "comingIn": "later phase"
+}

@@ -3,44 +3,69 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Checkmate — results</title>
+    <title>Checkmate</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Source+Sans+3:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
       rel="stylesheet"
     />
     <link rel="stylesheet" href="./styles.css" />
   </head>
   <body>
-    <div class="page">
-      <header class="header">
-        <p class="brand">Checkmate</p>
-        <h1>Evaluation results</h1>
-        <p class="lede">
-          Baseline vs staged verification on the frozen case corpus. Mock and
-          live runs are labeled explicitly — never confuse harness smoke with
-          model metrics.
-        </p>
-      </header>
+    <div class="shell">
+      <aside class="rail" aria-label="Primary">
+        <div class="rail-brand">
+          <span class="mark" aria-hidden="true"></span>
+          <div>
+            <p class="brand-name">Checkmate</p>
+            <p class="brand-sub">Prove before you ship</p>
+          </div>
+        </div>
+        <nav class="nav" id="nav">
+          <a href="#overview" data-view="overview" class="nav-link is-active">Overview</a>
+          <a href="#map" data-view="map" class="nav-link">Map</a>
+          <a href="#roadmap" data-view="roadmap" class="nav-link">Roadmap</a>
+          <a href="#proofs" data-view="proofs" class="nav-link">Proofs</a>
+          <a href="#changes" data-view="changes" class="nav-link">Changes</a>
+          <a href="#eval" data-view="eval" class="nav-link">Eval</a>
+        </nav>
+        <div class="rail-meta" id="rail-meta">
+          <p class="meta-k">Analysis</p>
+          <p class="meta-v" id="rail-analysis-id">—</p>
+          <p class="meta-k">Mode</p>
+          <p class="meta-v" id="rail-mode">—</p>
+        </div>
+      </aside>
 
-      <section id="status" class="status" aria-live="polite">
-        Loading <code>data/comparison.json</code>…
-      </section>
+      <div class="main">
+        <header class="topbar">
+          <div class="topbar-left">
+            <button type="button" class="menu-btn" id="menu-btn" aria-label="Open navigation">☰</button>
+            <div>
+              <p class="case-line" id="case-line">Loading analysis…</p>
+              <p class="repo-line" id="repo-line"></p>
+            </div>
+          </div>
+          <div class="topbar-right">
+            <span class="pill" id="ship-pill">—</span>
+            <a class="quiet-link" href="./data/sample-analysis/manifest.json" target="_blank" rel="noreferrer">Artifacts</a>
+          </div>
+        </header>
 
-      <section id="parity" class="block" hidden></section>
-      <section id="aggregates" class="block" hidden></section>
-      <section id="table" class="block" hidden></section>
-      <section id="detail" class="block" hidden></section>
-      <section id="trajectories" class="block" hidden></section>
+        <main class="content" id="content" aria-live="polite">
+          <p class="loading">Loading sample analysis…</p>
+        </main>
 
-      <footer class="footer">
-        <p>
-          Serve with <code>pnpm view:results</code>. Source report:
-          <code>artifacts/results/comparison.{json,md}</code>
-        </p>
-      </footer>
+        <footer class="foot">
+          <span>Offline demo loads <code>data/sample-analysis/</code></span>
+          <span>·</span>
+          <span><code>pnpm view:results</code> / <code>pnpm dev:web</code></span>
+        </footer>
+      </div>
     </div>
-    <script src="./app.js" type="module"></script>
+
+    <div class="nav-backdrop" id="nav-backdrop" hidden></div>
+    <script type="module" src="./js/app.js"></script>
   </body>
 </html>

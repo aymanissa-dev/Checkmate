@@ -29,17 +29,19 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
 ## Should / optional for submission polish
 
 - [ ] **Demo recording preference**
-  - [ ] Screen-record from this repo’s cases + results viewer only
+  - [ ] Screen-record from this repo’s cases + product UI only (`pnpm view:results`)
   - [ ] Also demo an external sample app (provide path/URL): `___`
-- [ ] **Hot take** (`docs/HOT_TAKE.md` later)
+- [ ] **Hot take** (`docs/HOT_TAKE.md` — currently stub)
   - [ ] You will draft it
-  - [ ] Derive from live results / failures after keyed eval
+  - [ ] Derive from live results / failures after keyed eval (recommended)
 - [ ] **GitHub token** (optional / SHOULD) — only if you want private-repo clone polish later:
-  - `GITHUB_TOKEN` or `GH_TOKEN` in `.env` — **not required** for eval or viewer
+  - `GITHUB_TOKEN` or `GH_TOKEN` in `.env` — **not required** for eval or UI
 - [ ] **micro1 / HackerEarth identity & submission fields** (optional notes)
   - Confirm login-gated Submission Package extras (video URL, zip, checklist) on HackerEarth
   - Team / display name as you will submit: `___`
   - Any required links beyond the public GitHub repo: `___`
+
+**Note:** Product UI + sample analysis already work offline. Keys are only needed for live CDR / hot take from experiments.
 
 ## Blocking live eval or viewing (check if anything else)
 
@@ -62,18 +64,16 @@ pnpm evaluate -- --live 01-auth-idor
 # or full corpus:
 pnpm evaluate -- --live
 
-# open the results viewer:
-pnpm view:results
+# open the product UI:
+pnpm view:results   # or pnpm dev:web
 # → http://127.0.0.1:4173/
 ```
 
-**What you will see in the viewer**
+**What you will see in the UI**
 
-- Status banner: `LIVE` (or `SKIPPED-NO-KEY` / `MOCK-SMOKE` if keys missing)
-- Resource parity (same tools; documented budgets)
-- Aggregate mean recall/precision **only labeled live when metricsAreLive**
-- Per-case baseline vs Checkmate table; click a row for score / match detail
-- Paths to sample trajectories; mental-model path when present
-- Reports also written to `artifacts/results/comparison.md` + `comparison.json`
+- **Overview / Map / Roadmap / Proofs / Changes** from analysis artifacts (sample works offline)
+- **Eval** tab: status banner `LIVE` | `SKIPPED-NO-KEY` | `MOCK-SMOKE`
+- Resource parity; aggregates **only live when `metricsAreLive`**
+- Reports also at `artifacts/results/comparison.md` + `comparison.json`
 
 Until keys are present, live CDR stays **pending** — we will not invent numbers.
