@@ -8,14 +8,20 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
 
 ## Must-have for live metrics
 
-- [ ] **Model API key** — set in `.env` (gitignored):
-  - `OPENAI_API_KEY=...` (**required** for current live path)
+- [ ] **Model API key** — set in `.env` (gitignored), pick **one** path:
+  - **OpenAI:** `OPENAI_API_KEY=...`
+  - **Hugging Face:** `HF_TOKEN=...` (or `HUGGINGFACE_API_KEY=...`)
+    - Create a fine-grained token with **“Make calls to Inference Providers”** permission
+    - Enable Inference Providers / free credits in HF account settings if prompted
   - Optional later: `ANTHROPIC_API_KEY=...` (provider **not implemented** yet; do not rely on it)
   - Template: copy `.env.example` → `.env`
 - [ ] **Model choice** — confirm or override default:
-  - Default: `gpt-4o-mini` via `CHECKMATE_MODEL`
-  - If you want another OpenAI chat model, set `CHECKMATE_MODEL=<name>`
-  - Leave `CHECKMATE_MODEL_PROVIDER` unset (or `openai`) for live; `mock` forces dry-run
+  - OpenAI default: `gpt-4o-mini` via `CHECKMATE_MODEL` (when provider is openai / OpenAI key)
+  - Hugging Face default: `Qwen/Qwen2.5-7B-Instruct` (when `CHECKMATE_MODEL_PROVIDER=huggingface` or only HF key)
+  - Override: `CHECKMATE_MODEL=<id>` — **same model for baseline and Checkmate**
+  - Provider: `CHECKMATE_MODEL_PROVIDER=openai` | `huggingface` | `hf` | `mock`
+  - HF uses OpenAI-compatible router `https://router.huggingface.co/v1` (structured JSON tool loop; optional `CHECKMATE_HF_NATIVE_TOOLS=1`)
+  - Note: Meta Llama models on HF often require accepting the model license on the model card; Qwen default avoids that gate
 - [ ] **Case scope for first live run** — pick one:
   - [ ] Subset first (recommended): e.g. `01-auth-idor` then `07-webhook-forge`
   - [ ] All **10** cases in one pass
@@ -55,11 +61,22 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
 We will run (exact commands):
 
 ```bash
-cp .env.example .env   # if not done; paste OPENAI_API_KEY
+cp .env.example .env   # if not done; paste key(s)
+
+# OpenAI path:
+# OPENAI_API_KEY=...
 # optional: CHECKMATE_MODEL=gpt-4o-mini
+
+# Hugging Face path:
+# HF_TOKEN=hf_...
+# CHECKMATE_MODEL_PROVIDER=huggingface
+# optional: CHECKMATE_MODEL=Qwen/Qwen2.5-7B-Instruct
 
 # subset first (example):
 pnpm evaluate -- --live 01-auth-idor
+
+# HF explicitly:
+CHECKMATE_MODEL_PROVIDER=huggingface pnpm evaluate -- --live 01-auth-idor
 
 # or full corpus:
 pnpm evaluate -- --live

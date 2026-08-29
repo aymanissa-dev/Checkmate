@@ -28,8 +28,9 @@
     "sameCases": true,
     "sameToolSurface": ["list_files", "read_file", "search", "run_command"],
     "sameFindingSchema": true,
-    "sameModelEnvVars": ["OPENAI_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
+    "sameModelEnvVars": ["OPENAI_API_KEY", "HF_TOKEN", "HUGGINGFACE_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
     "defaultModel": "gpt-4o-mini",
+    "defaultHfModel": "Qwen/Qwen2.5-7B-Instruct",
     "baselineBudget": { "maxToolCalls": 40, "maxWallTimeMs": 180000 },
     "checkmateBudget": {
       "maxToolCalls": 48,
@@ -46,6 +47,7 @@
     "requested": "gpt-4o-mini",
     "providerEnv": null,
     "openaiKeyPresent": false,
+    "huggingfaceKeyPresent": false,
     "anthropicKeyPresent": false
   },
   "aggregates": {
@@ -70,7 +72,7 @@
     "metricsAreLive": false
   },
   "livePlaceholders": {
-    "note": "Pending OPENAI_API_KEY (or confirmed provider) + pnpm evaluate -- --live",
+    "note": "Pending OPENAI_API_KEY or HF_TOKEN + pnpm evaluate -- --live",
     "criticalDefectRecall_baseline": null,
     "criticalDefectRecall_checkmate": null,
     "precision_baseline": null,

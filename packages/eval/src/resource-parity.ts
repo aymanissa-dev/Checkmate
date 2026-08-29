@@ -15,11 +15,14 @@ export const RESOURCE_PARITY = {
   sameFindingSchema: true,
   sameModelEnvVars: [
     "OPENAI_API_KEY",
+    "HF_TOKEN",
+    "HUGGINGFACE_API_KEY",
     "CHECKMATE_MODEL",
     "CHECKMATE_MODEL_PROVIDER",
   ] as const,
-  /** Default model when live; override via CHECKMATE_MODEL for both runners. */
+  /** Default model when live OpenAI; HF default is Qwen/Qwen2.5-7B-Instruct via provider. */
   defaultModel: "gpt-4o-mini",
+  defaultHfModel: "Qwen/Qwen2.5-7B-Instruct",
   baselineBudget: {
     maxToolCalls: 40,
     maxWallTimeMs: 180_000,
@@ -32,7 +35,7 @@ export const RESOURCE_PARITY = {
   differencesExplained: [
     "Checkmate adds mental-model + hypothesize + verify stages (procedure).",
     "Checkmate tool/time budget is slightly higher to allow sandbox proofs.",
-    "Same provider/model env when live; mock mode is harness smoke only.",
+    "Same provider/model env when live (OpenAI or Hugging Face); mock mode is harness smoke only.",
   ],
 } as const;
 

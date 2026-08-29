@@ -63,7 +63,25 @@ Evaluation-first log of hypotheses, measurements, and keep/kill decisions.
 
 ---
 
+## ITERATION: Hugging Face as first-class provider
+
+- **Date:** 2026-08-29
+- **Hypothesis:** Adding Hugging Face Inference Providers (OpenAI-compatible router) as a first-class ModelProvider reduces dependency on OpenAI for reproducible live eval while keeping the same tool budgets and baseline/Checkmate parity.
+- **Change:**
+  - `HuggingFaceProvider` in `@checkmate/baseline` → `https://router.huggingface.co/v1` with `HF_TOKEN` / `HUGGINGFACE_API_KEY`
+  - Default HF model: `Qwen/Qwen2.5-7B-Instruct` (instruction chat; not Meta-gated)
+  - Primary protocol: structured JSON `tool_call`/`final` (HF-compatible mode, same as current OpenAI wiring); optional native `tools` via `CHECKMATE_HF_NATIVE_TOOLS=1`
+  - `CHECKMATE_MODEL_PROVIDER=huggingface|hf`; wired in baseline + Checkmate runners; `--live` accepts HF key / `SKIPPED-NO-KEY` when missing
+  - Docs: `.env.example`, `PROVIDE_CHECKLIST.md`, `REPRODUCTION.md`
+- **Why:** Judges / contributors may only have HF credentials; open-weight models improve reproducibility.
+- **Metric before:** Pending live CDR — **not fabricated**.
+- **Metric after:** Still **pending keyed run** in this environment (no HF/OpenAI key present for live smoke). Provider wiring unit-tested; no invented CDR.
+- **Decision:** **Keep** HF provider; prefer structured JSON mode for reliability across HF backends.
+- **Notes:** Fairness: baseline and Checkmate share the same provider/model when HF is selected.
+
+---
+
 ## Stage: CHECKMATE (measurement)
 
-- Status: harness + Phase E report + Phase G product UI ready; **real model metrics SKIPPED (no API key)**
-- Next: human completes `PROVIDE_CHECKLIST.md` → live eval → fill changelog metrics → hot take → video
+- Status: harness + Phase E report + Phase G product UI + HF provider ready; **real model metrics SKIPPED (no API key)**
+- Next: human completes `PROVIDE_CHECKLIST.md` (OpenAI **or** HF) → live eval → fill changelog metrics → hot take → video

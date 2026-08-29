@@ -64,6 +64,7 @@ Offline demo bundle: `apps/web/data/sample-analysis/`.
 
 - **mock** — fixture / staged dry-run for CI (not model performance)
 - **openai** — Chat Completions when `OPENAI_API_KEY` is set
+- **huggingface** / **hf** — OpenAI-compatible Inference Providers router (`HF_TOKEN` / `HUGGINGFACE_API_KEY`); structured JSON tool loop (optional native tools via `CHECKMATE_HF_NATIVE_TOOLS=1`)
 - Anthropic — not implemented yet
 
 ## Comparison reports
