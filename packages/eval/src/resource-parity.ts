@@ -23,8 +23,8 @@ export const RESOURCE_PARITY = {
   /** Default provider when CHECKMATE_MODEL_PROVIDER unset. */
   defaultProvider: "huggingface",
   /** Default live model (HF path). OpenAI opt-in uses defaultOpenaiModel. */
-  defaultModel: "Qwen/Qwen2.5-7B-Instruct",
-  defaultHfModel: "Qwen/Qwen2.5-7B-Instruct",
+  defaultModel: "Qwen/Qwen2.5-Coder-7B-Instruct",
+  defaultHfModel: "Qwen/Qwen2.5-Coder-7B-Instruct",
   defaultOpenaiModel: "gpt-4o-mini",
   baselineBudget: {
     maxToolCalls: 40,

@@ -14,15 +14,16 @@ import { parseModelAction } from "./openai-provider.js";
  * Native `tool_calls` are accepted when a backend returns them; otherwise we
  * fall back to JSON-in-prompt (documented HF-compatible mode).
  *
- * Default model: Qwen/Qwen2.5-7B-Instruct (widely available on Inference
- * Providers; not Meta-gated). Override with CHECKMATE_MODEL.
+ * Default model: Qwen/Qwen2.5-Coder-7B-Instruct (available on Inference
+ * Providers router; not Meta-gated). Override with CHECKMATE_MODEL.
  * Optional provider pin: append `:fastest` | `:cheapest` | `:novita` etc.
+ * Note: Qwen/Qwen2.5-7B-Instruct may return model_not_supported on some accounts.
  */
 
 export const HF_ROUTER_BASE_URL = "https://router.huggingface.co/v1";
 
 /** Sensible default for instruction chat on HF Inference Providers. */
-export const DEFAULT_HF_MODEL = "Qwen/Qwen2.5-7B-Instruct";
+export const DEFAULT_HF_MODEL = "Qwen/Qwen2.5-Coder-7B-Instruct";
 
 const ACTION_SYSTEM = `
 You are reviewing a codebase. Respond with a single JSON object only, one of:

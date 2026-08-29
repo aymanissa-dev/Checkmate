@@ -14,7 +14,7 @@
 | Baseline | 40 | 180000 | list_files, read_file, search, run_command |
 | Checkmate | 48 | 240000 | same |
 
-Default model (live): `Qwen/Qwen2.5-7B-Instruct` via `CHECKMATE_MODEL` / provider (default `huggingface`; OpenAI opt-in). Requested this run: `Qwen/Qwen2.5-7B-Instruct`.
+Default model (live): `Qwen/Qwen2.5-Coder-7B-Instruct` via `CHECKMATE_MODEL` / provider (default `huggingface`; OpenAI opt-in). Requested this run: `Qwen/Qwen2.5-Coder-7B-Instruct`.
 
 - Checkmate adds mental-model + hypothesize + verify stages (procedure).
 - Checkmate tool/time budget is slightly higher to allow sandbox proofs.

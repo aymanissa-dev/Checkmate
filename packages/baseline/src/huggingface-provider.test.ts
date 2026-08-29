@@ -145,14 +145,14 @@ async function main(): Promise<void> {
       CHECKMATE_MODEL_PROVIDER: "hf",
       CHECKMATE_DRY_RUN: undefined,
       ANTHROPIC_API_KEY: undefined,
-      CHECKMATE_MODEL: "Qwen/Qwen2.5-7B-Instruct:cheapest",
+      CHECKMATE_MODEL: "Qwen/Qwen2.5-Coder-7B-Instruct:cheapest",
     },
     () => {
       assert.equal(getHfToken(), "hf_alias");
       const env = getProviderFromEnv();
       assert.equal(env.mode, "huggingface");
       const r = resolveProvider("01-auth-idor");
-      assert.equal(r.provider.model, "Qwen/Qwen2.5-7B-Instruct:cheapest");
+      assert.equal(r.provider.model, "Qwen/Qwen2.5-Coder-7B-Instruct:cheapest");
     },
   );
 

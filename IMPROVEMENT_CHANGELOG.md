@@ -97,7 +97,28 @@ Evaluation-first log of hypotheses, measurements, and keep/kill decisions.
 
 ---
 
+## ITERATION: Live HF eval attempt (keyed)
+
+- **Date:** 2026-08-29
+- **Hypothesis:** With `HF_TOKEN` present, default-provider live eval (`pnpm evaluate -- --live`) would produce measurable baseline vs Checkmate CDR on the corpus.
+- **What changed / observed (actual):**
+  1. Token accepted (auth OK; Inference Providers reachable).
+  2. Default model `Qwen/Qwen2.5-7B-Instruct` → HTTP **400** `model_not_supported` (not enabled / not on router catalog for this account).
+  3. Alternate `Qwen/Qwen2.5-Coder-7B-Instruct` → tiny chat smoke **succeeded**; default HF model in code/docs updated to this id.
+  4. Live subset `pnpm evaluate -- --live 01-auth-idor` → **ERROR 402** “monthly included credits depleted” before any findings scored.
+- **Cases run:** `01-auth-idor` only (LIVE attempt). Broader corpus **not** run (blocked by credits).
+- **Metric before:** Pending keyed run (prior stages).
+- **Metric after (actual — not fabricated):**
+  - `mode`: live; `casesAttempted`: 1; `casesScored`: 0; `casesErrored`: 1
+  - Baseline / Checkmate mean recall, mean precision, TP/FN/FP: **null**
+  - CDR placeholders: **null** (no scored LIVE rows)
+  - Artifacts: `artifacts/results/comparison.{json,md}` (gitignored) record the 402 ERROR row
+- **Decision:** **Keep** HF path + Coder-7B default; **blocked** on Inference Providers credits (or PRO / pre-paid). Do not invent CDR.
+- **Notes:** Rotate the pasted token. Re-run `pnpm evaluate -- --live` after credits; then fill CDR here.
+
+---
+
 ## Stage: CHECKMATE (measurement)
 
-- Status: harness + Phase E report + Phase G product UI + **HF default provider** ready; **real model metrics SKIPPED (no HF_TOKEN)**
-- Next: human completes `PROVIDE_CHECKLIST.md` (HF default, or explicit OpenAI) → live eval → fill changelog metrics → hot take → video
+- Status: harness + Phase E/G + HF default (`Qwen/Qwen2.5-Coder-7B-Instruct`) ready; **live CDR blocked by HF Inference Providers 402 (credits depleted)** after successful auth + model smoke
+- Next: restore HF credits (or PRO / pre-paid) → `pnpm evaluate -- --live` → fill CDR + hot take from scored rows only
