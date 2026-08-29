@@ -1,0 +1,100 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "runId": "baseline-01-auth-idor-1788003919076",
+  "agent": "fixture",
+  "model": "fixture-v1",
+  "provider": "mock",
+  "startedAt": "2026-08-29T11:45:19.076Z",
+  "finishedAt": "2026-08-29T11:45:19.079Z",
+  "budget": {
+    "maxToolCalls": 40,
+    "maxWallTimeMs": 180000
+  },
+  "usage": {
+    "toolCalls": 3,
+    "wallTimeMs": 3
+  },
+  "steps": [
+    {
+      "index": 0,
+      "type": "message",
+      "role": "system",
+      "content": "You are a senior software engineer performing a one-shot critical review.\n\nReview the application in the workspace for CRITICAL correctness, security, and reliability defects.\nFocus on: authorization bugs, injection, SSRF, race conditions, path traversal, missing integrity checks, false-green tests, secret leakage, and consistency violations.\n\nTools available (same surface Checkmate will use later):\n- list_files: list directory contents under the workspace\n- read_file: read a file\n- search: substring search across source files\n- run_command: run a shell command with cwd restricted to the workspace\n\nConstraints:\n- Do NOT invent issues without code evidence.\n- Prefer fewer high-severity findings over many speculative ones.\n- Output structured findings JSON when finished (FindingsDocument).\n- There is NO separate mental-model stage and NO forced verify stage in this baseline.\n",
+      "timestamp": "2026-08-29T11:45:19.076Z"
+    },
+    {
+      "index": 1,
+      "type": "message",
+      "role": "user",
+      "content": "Case ID: 01-auth-idor\nWorkspace root is the application under review. Explore it with tools and return critical findings as FindingsDocument JSON.\nDo not attempt to read any ground-truth or scorer files — they are not in this workspace.",
+      "timestamp": "2026-08-29T11:45:19.076Z"
+    },
+    {
+      "index": 2,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock] Listing workspace root",
+      "toolName": "list_files",
+      "toolArgs": {
+        "path": "."
+      },
+      "timestamp": "2026-08-29T11:45:19.077Z"
+    },
+    {
+      "index": 3,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "list_files",
+      "toolResult": "{\n  \"path\": \".\",\n  \"files\": [\n    \"README.md\",\n    \"data/\",\n    \"package.json\",\n    \"src/\",\n    \"test/\"\n  ]\n}",
+      "timestamp": "2026-08-29T11:45:19.077Z"
+    },
+    {
+      "index": 4,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock] Searching for risk keywords",
+      "toolName": "search",
+      "toolArgs": {
+        "pattern": "TODO|FIXME|password|token|SELECT|jwt|fetch|transfer"
+      },
+      "timestamp": "2026-08-29T11:45:19.077Z"
+    },
+    {
+      "index": 5,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "search",
+      "toolResult": "{\n  \"pattern\": \"TODO|FIXME|password|token|SELECT|jwt|fetch|transfer\",\n  \"hits\": []\n}",
+      "timestamp": "2026-08-29T11:45:19.079Z"
+    },
+    {
+      "index": 6,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock] Listing src/",
+      "toolName": "list_files",
+      "toolArgs": {
+        "path": "src"
+      },
+      "timestamp": "2026-08-29T11:45:19.079Z"
+    },
+    {
+      "index": 7,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "list_files",
+      "toolResult": "{\n  \"path\": \"src\",\n  \"files\": [\n    \"src/server.js\",\n    \"src/smoke.js\"\n  ]\n}",
+      "timestamp": "2026-08-29T11:45:19.079Z"
+    },
+    {
+      "index": 8,
+      "type": "final",
+      "role": "assistant",
+      "content": "[mock] Emitting fixture findings (NOT a real model eval)",
+      "timestamp": "2026-08-29T11:45:19.079Z"
+    }
+  ],
+  "findingsPath": "artifacts/01-auth-idor/findings.json",
+  "notes": "Forced mock/dry-run (harness smoke only — NOT a real model evaluation)"
+}

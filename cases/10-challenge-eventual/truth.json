@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "10-challenge-eventual",
+  "name": "Concurrent checkout oversell",
+  "summary": "Inventory checkout is check-then-decrement without serialization — oversell under concurrency.",
+  "defects": [
+    {
+      "id": "D1-inventory-oversell",
+      "title": "Concurrent checkout breaks inventory invariant",
+      "severity": "critical",
+      "defectClass": "consistency",
+      "description": "checkout() reads stock and decrements non-atomically, allowing oversell.",
+      "locators": [{ "path": "src/checkout.js", "symbol": "checkout" }],
+      "matchKeys": ["inventory", "concurrent", "oversell", "invariant"],
+      "matchAliases": ["race", "stock", "sold out"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

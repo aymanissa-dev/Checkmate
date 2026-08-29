@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "producedBy": "human",
+  "findings": [
+    {
+      "schemaVersion": 1,
+      "id": "H1",
+      "title": "IDOR: missing authorization on order fetch",
+      "severity": "critical",
+      "defectClass": "authz",
+      "description": "getOrder returns orders without verifying req.user.id === order.userId.",
+      "locators": [{ "path": "src/server.js", "symbol": "getOrder" }],
+      "matchKeys": ["idor", "missing authorization", "orders"],
+      "proofIds": []
+    }
+  ]
+}

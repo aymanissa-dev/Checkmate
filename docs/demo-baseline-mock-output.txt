@@ -1,0 +1,29 @@
+
+> checkmate@0.1.0 evaluate:baseline /workspace
+> pnpm --filter @checkmate/baseline run evaluate -- 01-auth-idor --mock
+
+
+> @checkmate/baseline@0.1.0 evaluate /workspace/packages/baseline
+> tsx src/cli.ts -- 01-auth-idor --mock
+
+Running baseline in MOCK/DRY-RUN mode (harness smoke — NOT a real model eval)
+
+=== 01-auth-idor ===
+  mode: mock (mock)
+  toolCalls: 3
+  findings: /workspace/artifacts/01-auth-idor/findings.json
+  trajectory: /workspace/trajectories/baseline-01-auth-idor-1788003930951.json
+  note: Forced mock/dry-run (harness smoke only — NOT a real model evaluation)
+  score: TP=1 FN=0 FP=0 recall=1.00 [MOCK FIXTURE SCORE — not model performance]
+
+
+> checkmate@0.1.0 test:fixtures /workspace
+> tsx scripts/test-fixtures.ts
+
+01-auth-idor: TP=1 FN=0 recall=1
+02-jwt-alg-none: TP=1 FN=0 recall=1
+Gate A fixture scoring PASSED (≥2 cases, no LLM)
+---
+
+NOTE: Mock/fixture scores above are harness smoke only — NOT model performance.
+Real LLM metrics: incomplete until OPENAI_API_KEY runs are performed.

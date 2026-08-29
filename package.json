@@ -1,0 +1,28 @@
+{
+  "name": "checkmate",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Checkmate — evaluation-first agentic code review for the micro1 Agentic Workflows Hackathon",
+  "type": "module",
+  "packageManager": "pnpm@10.33.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "build": "pnpm -r run build",
+    "typecheck": "pnpm -r run typecheck",
+    "evaluate:baseline": "pnpm --filter @checkmate/baseline run evaluate",
+    "evaluate:checkmate": "pnpm --filter @checkmate/checkmate run evaluate",
+    "evaluate:score": "pnpm --filter @checkmate/eval run score",
+    "evaluate": "pnpm run evaluate:score",
+    "guard:truth-isolation": "tsx scripts/guard-truth-isolation.ts",
+    "smoke:cases": "tsx scripts/smoke-cases.ts",
+    "test:fixtures": "tsx scripts/test-fixtures.ts",
+    "prepare": "pnpm -r run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}

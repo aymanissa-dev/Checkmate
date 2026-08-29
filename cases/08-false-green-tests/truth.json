@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "caseId": "08-false-green-tests",
+  "name": "False-green mocked persistence tests",
+  "summary": "Order service has a real persistence bug, but tests mock the repo and stay green.",
+  "defects": [
+    {
+      "id": "D1-false-green",
+      "title": "Tests mock away real persistence",
+      "severity": "high",
+      "defectClass": "test-gap",
+      "description": "test/orders.test.js stubs saveOrder so the broken JSON persistence never fails tests.",
+      "locators": [
+        { "path": "test/orders.test.js" },
+        { "path": "src/store.js", "symbol": "saveOrder" }
+      ],
+      "matchKeys": ["mock", "false green", "persistence"],
+      "matchAliases": ["stub repository", "tests pass"],
+      "requiredSeverityAtLeast": "medium"
+    }
+  ],
+  "notes": "Also contains a real saveOrder bug (writes invalid JSON) that production would hit."
+}

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "name": "Order API IDOR",
+  "summary": "Express-like order service missing ownership checks on order detail.",
+  "defects": [
+    {
+      "id": "D1-idor-order-get",
+      "title": "IDOR on GET /orders/:id",
+      "severity": "critical",
+      "defectClass": "authz",
+      "description": "Any authenticated user can read another user's order by ID; no ownership/authz check.",
+      "locators": [{ "path": "src/server.js", "symbol": "getOrder" }],
+      "matchKeys": ["idor", "missing authorization", "orders"],
+      "matchAliases": ["authz", "ownership", "insecure direct object"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

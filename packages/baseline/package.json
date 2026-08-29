@@ -1,0 +1,28 @@
+{
+  "name": "@checkmate/baseline",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "evaluate": "tsx src/cli.ts"
+  },
+  "dependencies": {
+    "@checkmate/schemas": "workspace:*",
+    "@checkmate/sandbox": "workspace:*",
+    "@checkmate/eval": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2"
+  }
+}
