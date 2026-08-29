@@ -5,6 +5,10 @@
 **Draft:** yes  
 **Title:** Phase A–G: Checkmate eval harness, staged loop, product UI, submission pack
 
+**Create URL (ManagePullRequest unavailable in this agent):**  
+https://github.com/aymanissa-dev/Checkmate/compare/main...cursor/checkmate-phase-abc-5df8?expand=1  
+Note: prior PR #5 (Phase E) is **MERGED**; open a **new** draft PR from this branch for Phase G.
+
 ## Body
 
 ### Summary
