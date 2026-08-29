@@ -1,0 +1,72 @@
+[
+  {
+    "schemaVersion": 1,
+    "id": "P1",
+    "findingId": "F1",
+    "hypothesisId": "H1",
+    "kind": "code-citation",
+    "summary": "getOrder discards authenticated uid — IDOR on detail route",
+    "claim": "GET /orders/:id must only return orders owned by the caller.",
+    "expected": "getOrder(id, uid) returns null (or 403) when order.userId !== uid.",
+    "observed": "function getOrder(id, _uid) { return orders.get(id) ?? null; } — uid unused; any authenticated caller can fetch ord-2.",
+    "result": "PROVEN",
+    "details": "Verify stage used read_file + search. Ownership filter exists on listOrders but not on getOrder.",
+    "locators": [{ "path": "src/server.js", "startLine": 52, "endLine": 55 }],
+    "command": null,
+    "stdoutExcerpt": "/** CRITICAL DEFECT: no ownership check — IDOR */\nfunction getOrder(id, _uid) {\n  return orders.get(id) ?? null;\n}",
+    "verified": true,
+    "toolResultRefs": [
+      {
+        "stepIndex": 18,
+        "toolName": "read_file",
+        "excerpt": "function getOrder(id, _uid) {\n  return orders.get(id) ?? null;\n}"
+      },
+      {
+        "stepIndex": 20,
+        "toolName": "search",
+        "excerpt": "hits in src/server.js around getOrder / CRITICAL DEFECT: no ownership check"
+      }
+    ],
+    "artifactPath": "proofs/P1.json"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "P2",
+    "findingId": "F2",
+    "hypothesisId": "H2",
+    "kind": "code-citation",
+    "summary": "Smoke path never asserts cross-user denial",
+    "claim": "Regression tests should fail if alice can read bob's order by id.",
+    "expected": "smoke.js includes a cross-user GET /orders/:id expectation (403/404).",
+    "observed": "smoke.js exercises health + owned flows only; no foreign-id assertion found.",
+    "result": "PROVEN",
+    "details": "read_file on smoke.js; search for bob/alice cross checks returned no denial assertion.",
+    "locators": [{ "path": "smoke.js" }],
+    "verified": true,
+    "toolResultRefs": [
+      {
+        "stepIndex": 22,
+        "toolName": "read_file",
+        "excerpt": "smoke happy-path: /health, create, list for same user"
+      }
+    ],
+    "artifactPath": "proofs/P2.json"
+  },
+  {
+    "schemaVersion": 1,
+    "id": "P3",
+    "findingId": "F3",
+    "hypothesisId": "H3",
+    "kind": "reasoning",
+    "summary": "Header-as-principal is intentional mini-app design — insufficient for elevating severity",
+    "claim": "Production-grade authn binding is required for this service.",
+    "expected": "Evidence of session/JWT binding or documented threat model requiring it.",
+    "observed": "userId reads X-User-Id only; case is a teaching mini-app without that contract.",
+    "result": "INSUFFICIENT",
+    "details": "Left as architecture note (unverified low). Not a confirmed critical without Change Contract.",
+    "locators": [{ "path": "src/server.js", "symbol": "userId" }],
+    "verified": false,
+    "toolResultRefs": [],
+    "artifactPath": null
+  }
+]

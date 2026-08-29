@@ -12,9 +12,9 @@ packages/
   sandbox/    # list_files, read_file, search, run_command
   eval/       # deterministic scorer (matchKeys-v1 frozen) + resource parity
   baseline/   # one-shot runner + model provider abstraction
-  checkmate/  # staged mental-model + verification loop (Phase D)
+  checkmate/  # staged mental-model + verification loop
 apps/
-  web/        # minimal static results viewer (Phase E)
+  web/        # product UI (Overview, Map, Roadmap, Proofs, Changes, Eval)
 ```
 
 ## Case layout
@@ -45,21 +45,36 @@ cases/<id>/
 - Same tools as baseline; budget comparable (48 tool calls / 240s vs baseline 40 / 180s)
 - Confirmed findings require proof `toolResultRefs` pointing at real trajectory tool_result steps
 
+## Product UI (`apps/web`)
+
+Static app (no framework). `pnpm view:results` / `pnpm dev:web` → `http://127.0.0.1:4173/`.
+
+| View | Data |
+|------|------|
+| Overview | manifest + findings + mental model → ship status / blockers / next action |
+| Map | `engineering_map.json` or derived from `mental_model.json` (SVG, no heavy deps) |
+| Roadmap | Deterministic NOW/NEXT/LATER from severity × verificationStatus |
+| Proofs | proofs.json (claim, expected, observed, result) |
+| Changes | `change_contract.stub.json` placeholder |
+| Eval | `data/comparison.json` (synced from `artifacts/results/` when present) |
+
+Offline demo bundle: `apps/web/data/sample-analysis/`.
+
 ## Model providers
 
 - **mock** — fixture / staged dry-run for CI (not model performance)
 - **openai** — Chat Completions when `OPENAI_API_KEY` is set
 - Anthropic — not implemented yet
 
-## Phase E comparison
+## Comparison reports
 
 - `pnpm evaluate` → `artifacts/results/comparison.{json,md}`
 - Labels: `MOCK-SMOKE` | `LIVE` | `SKIPPED-NO-KEY`
-- Viewer: `pnpm view:results` → `apps/web`
 - Human inputs: `PROVIDE_CHECKLIST.md`
 
-## Non-goals (this phase)
+## Non-goals (current phase)
 
-- Full Checkmate product SaaS / GitHub App / Change Contract
+- GitHub App / webhooks / auto-fix
 - Multi-agent swarm theater
 - Fabricated leaderboard metrics without keyed LLM runs
+- Kafka / Redis / K8s

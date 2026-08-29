@@ -1,0 +1,42 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "hypotheses": [
+    {
+      "schemaVersion": 1,
+      "id": "H1",
+      "claim": "Order detail lookup may return any order without verifying ownership.",
+      "defectClass": "authz",
+      "tentativeSeverity": "critical",
+      "relatedComponents": ["src/server.js", "GET /orders/:id"],
+      "proposedCheck": "read_file src/server.js and confirm getOrder ignores uid; search for ownership comparison",
+      "status": "confirmed",
+      "proofIds": ["P1"],
+      "notes": "Confirmed via sandbox read_file + search tool_result refs"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "H2",
+      "claim": "Smoke coverage may miss cross-user IDOR regression.",
+      "defectClass": "test-gap",
+      "tentativeSeverity": "medium",
+      "relatedComponents": ["smoke.js"],
+      "proposedCheck": "read_file smoke.js for cross-user assertions on GET /orders/:id",
+      "status": "confirmed",
+      "proofIds": ["P2"],
+      "notes": "Smoke is happy-path only"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "H3",
+      "claim": "Identity may be entirely header-based with no binding.",
+      "defectClass": "authn",
+      "tentativeSeverity": "low",
+      "relatedComponents": ["userId()"],
+      "proposedCheck": "Inspect userId helper; no cryptographic binding expected in mini-app",
+      "status": "unverified",
+      "proofIds": [],
+      "notes": "Architecture note — not elevated without production context"
+    }
+  ]
+}

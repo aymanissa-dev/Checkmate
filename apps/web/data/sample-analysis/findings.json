@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "producedBy": "checkmate",
+  "findings": [
+    {
+      "schemaVersion": 1,
+      "id": "F1",
+      "title": "IDOR: order lookup missing ownership check",
+      "severity": "critical",
+      "defectClass": "authz",
+      "description": "GET /orders/:id returns any order without verifying the caller owns it. getOrder(id, _uid) discards the authenticated user id after the authn gate.",
+      "locators": [{ "path": "src/server.js", "startLine": 52, "endLine": 55, "symbol": "getOrder" }],
+      "matchKeys": ["idor", "missing authorization", "orders"],
+      "confidence": 0.9,
+      "proofIds": ["P1"],
+      "verificationStatus": "confirmed"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "F2",
+      "title": "Smoke tests omit cross-user denial",
+      "severity": "medium",
+      "defectClass": "test-gap",
+      "description": "Happy-path smoke covers health and owned list/create flows but does not assert that alice cannot read bob's order by id.",
+      "locators": [{ "path": "smoke.js" }],
+      "matchKeys": ["test gap", "idor", "smoke"],
+      "confidence": 0.7,
+      "proofIds": ["P2"],
+      "verificationStatus": "confirmed"
+    },
+    {
+      "schemaVersion": 1,
+      "id": "F3",
+      "title": "Principal is a forgeable header",
+      "severity": "low",
+      "defectClass": "authn",
+      "description": "X-User-Id is accepted as identity with no signature or session binding. Acceptable for a mini-app, but architecture note for production.",
+      "locators": [{ "path": "src/server.js", "symbol": "userId" }],
+      "matchKeys": ["x-user-id", "authn"],
+      "confidence": 0.6,
+      "proofIds": [],
+      "verificationStatus": "unverified"
+    }
+  ]
+}

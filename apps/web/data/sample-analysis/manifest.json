@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "analysisId": "sample-01-auth-idor-mock",
+  "runId": "sample-01-auth-idor-mock",
+  "caseId": "01-auth-idor",
+  "repoLabel": "cases/01-auth-idor/app",
+  "producedBy": "checkmate",
+  "mode": "mock",
+  "label": "MOCK-SMOKE",
+  "disclaimer": "Committed sample analysis for offline UI demo. Harness smoke — not live model metrics.",
+  "generatedAt": "2026-08-29T12:30:00.000Z",
+  "stagesCompleted": [
+    "scope",
+    "understand",
+    "model",
+    "hypothesize",
+    "verify",
+    "report"
+  ],
+  "artifactPaths": {
+    "mentalModel": "mental_model.json",
+    "engineeringMap": "engineering_map.json",
+    "findings": "findings.json",
+    "hypotheses": "hypotheses.json",
+    "proofs": "proofs.json",
+    "report": "report.md",
+    "scope": "scope.md",
+    "changeContract": "change_contract.stub.json"
+  }
+}

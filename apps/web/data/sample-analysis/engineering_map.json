@@ -1,0 +1,154 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "derivedFrom": "mental_model.json",
+  "nodes": [
+    {
+      "id": "actor:caller",
+      "type": "actor",
+      "label": "HTTP caller",
+      "evidence": ["X-User-Id header is the sole auth signal"],
+      "files": [],
+      "risks": ["Header can be spoofed in tests / misconfigured proxies"],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "route:health",
+      "type": "route",
+      "label": "GET /health",
+      "evidence": ["Unauthenticated health check"],
+      "files": ["src/server.js"],
+      "risks": [],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "route:list",
+      "type": "route",
+      "label": "GET /orders",
+      "evidence": ["Filters orders by userId"],
+      "files": ["src/server.js"],
+      "risks": [],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "route:create",
+      "type": "route",
+      "label": "POST /orders",
+      "evidence": ["Creates order owned by caller"],
+      "files": ["src/server.js"],
+      "risks": [],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "route:detail",
+      "type": "route",
+      "label": "GET /orders/:id",
+      "evidence": ["Requires X-User-Id but getOrder ignores uid"],
+      "files": ["src/server.js"],
+      "risks": ["IDOR — missing ownership check (F1)"],
+      "verificationStatus": "proven-risk"
+    },
+    {
+      "id": "service:handlers",
+      "type": "service",
+      "label": "Order handlers",
+      "evidence": ["listOrders / getOrder / createOrder"],
+      "files": ["src/server.js"],
+      "risks": ["getOrder(_id, _uid) discards uid"],
+      "verificationStatus": "proven-risk"
+    },
+    {
+      "id": "store:orders",
+      "type": "store",
+      "label": "orders Map",
+      "evidence": ["In-memory Map keyed by order id"],
+      "files": ["src/server.js"],
+      "risks": [],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "boundary:auth",
+      "type": "trust_boundary",
+      "label": "Authn gate (X-User-Id)",
+      "evidence": ["401 when header missing"],
+      "files": ["src/server.js"],
+      "risks": ["Authn ≠ Authz on detail route"],
+      "verificationStatus": "known"
+    },
+    {
+      "id": "test:smoke",
+      "type": "test",
+      "label": "smoke.js",
+      "evidence": ["Happy-path smoke only"],
+      "files": ["smoke.js"],
+      "risks": ["Likely no cross-user IDOR assertion"],
+      "verificationStatus": "open"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1",
+      "type": "authn",
+      "from": "actor:caller",
+      "to": "boundary:auth",
+      "label": "presents X-User-Id"
+    },
+    {
+      "id": "e2",
+      "type": "invokes",
+      "from": "boundary:auth",
+      "to": "route:list",
+      "label": "authorized list"
+    },
+    {
+      "id": "e3",
+      "type": "invokes",
+      "from": "boundary:auth",
+      "to": "route:create",
+      "label": "authorized create"
+    },
+    {
+      "id": "e4",
+      "type": "invokes",
+      "from": "boundary:auth",
+      "to": "route:detail",
+      "label": "authn only"
+    },
+    {
+      "id": "e5",
+      "type": "authz",
+      "from": "route:list",
+      "to": "service:handlers",
+      "label": "filter by owner"
+    },
+    {
+      "id": "e6",
+      "type": "authz",
+      "from": "route:detail",
+      "to": "service:handlers",
+      "label": "MISSING ownership check",
+      "risk": true
+    },
+    {
+      "id": "e7",
+      "type": "data_flow",
+      "from": "service:handlers",
+      "to": "store:orders",
+      "label": "read/write orders"
+    },
+    {
+      "id": "e8",
+      "type": "invokes",
+      "from": "test:smoke",
+      "to": "route:list",
+      "label": "smoke hits"
+    },
+    {
+      "id": "e9",
+      "type": "trust",
+      "from": "route:health",
+      "to": "service:handlers",
+      "label": "public"
+    }
+  ]
+}
