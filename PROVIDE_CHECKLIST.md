@@ -17,7 +17,7 @@ Copy this file or reply with the filled items. Secrets go in **`.env` only** (ne
   - Template: copy `.env.example` → `.env`
 - [ ] **Model choice** — confirm or override default:
   - **Default provider:** `huggingface` when `CHECKMATE_MODEL_PROVIDER` is unset
-  - **Default model (HF):** `Qwen/Qwen2.5-7B-Instruct`
+  - **Default model (HF):** `Qwen/Qwen2.5-Coder-7B-Instruct`
   - OpenAI (opt-in): `gpt-4o-mini` when `CHECKMATE_MODEL_PROVIDER=openai`
   - Override: `CHECKMATE_MODEL=<id>` — **same model for baseline and Checkmate**
   - Provider: `CHECKMATE_MODEL_PROVIDER=` unset/`huggingface`/`hf` | `openai` | `mock`
@@ -66,7 +66,7 @@ cp .env.example .env   # if not done; paste key(s)
 
 # Default Hugging Face path:
 # HF_TOKEN=hf_...
-# optional: CHECKMATE_MODEL=Qwen/Qwen2.5-7B-Instruct
+# optional: CHECKMATE_MODEL=Qwen/Qwen2.5-Coder-7B-Instruct
 # (CHECKMATE_MODEL_PROVIDER defaults to huggingface when unset)
 
 # Optional OpenAI path (secondary):

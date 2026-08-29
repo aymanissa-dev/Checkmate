@@ -30,8 +30,8 @@
     "sameFindingSchema": true,
     "sameModelEnvVars": ["OPENAI_API_KEY", "HF_TOKEN", "HUGGINGFACE_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
     "defaultProvider": "huggingface",
-    "defaultModel": "Qwen/Qwen2.5-7B-Instruct",
-    "defaultHfModel": "Qwen/Qwen2.5-7B-Instruct",
+    "defaultModel": "Qwen/Qwen2.5-Coder-7B-Instruct",
+    "defaultHfModel": "Qwen/Qwen2.5-Coder-7B-Instruct",
     "defaultOpenaiModel": "gpt-4o-mini",
     "baselineBudget": { "maxToolCalls": 40, "maxWallTimeMs": 180000 },
     "checkmateBudget": {
@@ -46,7 +46,7 @@
     ]
   },
   "model": {
-    "requested": "Qwen/Qwen2.5-7B-Instruct",
+    "requested": "Qwen/Qwen2.5-Coder-7B-Instruct",
     "providerEnv": "huggingface",
     "openaiKeyPresent": false,
     "huggingfaceKeyPresent": false,
