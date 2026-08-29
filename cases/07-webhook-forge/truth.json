@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "07-webhook-forge",
+  "name": "Unsigned webhooks",
+  "summary": "Payment webhook endpoint trusts body without signature check.",
+  "defects": [
+    {
+      "id": "D1-webhook-nosig",
+      "title": "Missing webhook signature verification",
+      "severity": "critical",
+      "defectClass": "integrity",
+      "description": "handleWebhook processes events without verifying HMAC signature headers.",
+      "locators": [{ "path": "src/webhooks.js", "symbol": "handleWebhook" }],
+      "matchKeys": ["webhook", "signature", "hmac"],
+      "matchAliases": ["forgery", "integrity"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

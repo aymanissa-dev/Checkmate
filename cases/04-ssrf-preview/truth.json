@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "04-ssrf-preview",
+  "name": "SSRF link preview",
+  "summary": "Preview endpoint fetches attacker-controlled URLs with no allowlist/blocklist.",
+  "defects": [
+    {
+      "id": "D1-ssrf-preview",
+      "title": "SSRF in link preview fetcher",
+      "severity": "critical",
+      "defectClass": "ssrf",
+      "description": "fetchPreview performs server-side HTTP GET to any user-supplied URL.",
+      "locators": [{ "path": "src/preview.js", "symbol": "fetchPreview" }],
+      "matchKeys": ["ssrf", "fetch", "url"],
+      "matchAliases": ["server-side request", "link preview"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

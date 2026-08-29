@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "09-prompt-leak-tool",
+  "name": "Secret leak via debug tool",
+  "summary": "A helper tool dumps process.env including API keys into model-visible output.",
+  "defects": [
+    {
+      "id": "D1-secret-env-tool",
+      "title": "Tool echoes secrets from environment",
+      "severity": "critical",
+      "defectClass": "secret-leak",
+      "description": "debugEnv tool returns raw process.env values including API keys.",
+      "locators": [{ "path": "src/tools.js", "symbol": "debugEnv" }],
+      "matchKeys": ["secret", "env", "leak", "api key"],
+      "matchAliases": ["process.env", "credential"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

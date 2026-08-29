@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "02-jwt-alg-none",
+  "name": "JWT alg none",
+  "summary": "Token verification accepts unsigned alg=none JWTs as valid sessions.",
+  "defects": [
+    {
+      "id": "D1-jwt-alg-none",
+      "title": "Unsigned JWT (alg=none) accepted",
+      "severity": "critical",
+      "defectClass": "authn",
+      "description": "verifyToken treats alg=none as valid and trusts the payload without a signature.",
+      "locators": [{ "path": "src/auth.js", "symbol": "verifyToken" }],
+      "matchKeys": ["jwt", "alg none", "unsigned"],
+      "matchAliases": ["algorithm none", "no signature"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

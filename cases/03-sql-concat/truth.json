@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "03-sql-concat",
+  "name": "SQL injection via concat",
+  "summary": "User search query concatenated into SQL instead of parameterized.",
+  "defects": [
+    {
+      "id": "D1-sql-concat",
+      "title": "SQL injection in user search",
+      "severity": "critical",
+      "defectClass": "injection",
+      "description": "findUsersByName concatenates unsanitized input into a SQL string.",
+      "locators": [{ "path": "src/db.js", "symbol": "findUsersByName" }],
+      "matchKeys": ["sql injection", "concat", "query"],
+      "matchAliases": ["sqli", "string concatenation"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

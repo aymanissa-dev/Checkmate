@@ -1,0 +1,9 @@
+{
+  "name": "case-02-jwt-alg-none",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "smoke": "node src/smoke.js"
+  }
+}

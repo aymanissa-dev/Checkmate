@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "05-race-wallet",
+  "name": "Wallet TOCTOU transfer",
+  "summary": "Transfer reads balance then writes without mutual exclusion — raceable.",
+  "defects": [
+    {
+      "id": "D1-race-transfer",
+      "title": "Non-atomic wallet transfer (TOCTOU)",
+      "severity": "critical",
+      "defectClass": "race",
+      "description": "transfer() checks balance and updates in separate steps without a lock/transaction.",
+      "locators": [{ "path": "src/wallet.js", "symbol": "transfer" }],
+      "matchKeys": ["race", "toctou", "transfer", "non-atomic"],
+      "matchAliases": ["concurrency", "double spend"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}

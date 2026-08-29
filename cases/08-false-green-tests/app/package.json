@@ -1,0 +1,10 @@
+{
+  "name": "case-08-false-green-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js",
+    "test": "node test/orders.test.js",
+    "smoke": "node test/orders.test.js"
+  }
+}

@@ -1,0 +1,17 @@
+node_modules/
+dist/
+*.tsbuildinfo
+artifacts/*
+!artifacts/.gitkeep
+trajectories/*
+!trajectories/.gitkeep
+!trajectories/sample-*.json
+.env
+.env.*
+!.env.example
+.DS_Store
+*.log
+.pnpm-store/
+coverage/
+tmp/
+.turbo/

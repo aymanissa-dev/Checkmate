@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "caseId": "06-path-traversal",
+  "name": "Path traversal download",
+  "summary": "File download builds paths from user input without rejecting .. segments.",
+  "defects": [
+    {
+      "id": "D1-path-traversal",
+      "title": "Path traversal in file download",
+      "severity": "critical",
+      "defectClass": "path-traversal",
+      "description": "resolveDownloadPath joins unsanitized filename allowing ../ escape.",
+      "locators": [{ "path": "src/files.js", "symbol": "resolveDownloadPath" }],
+      "matchKeys": ["path traversal", "dotdot", "filename"],
+      "matchAliases": ["directory traversal", "../"],
+      "requiredSeverityAtLeast": "high"
+    }
+  ]
+}
