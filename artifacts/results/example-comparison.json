@@ -1,0 +1,133 @@
+{
+  "schemaVersion": 1,
+  "generatedAt": "2026-08-29T12:00:00.000Z",
+  "mode": "mock",
+  "label": "MOCK-SMOKE",
+  "disclaimer": "MOCK harness smoke — not real model evaluation metrics. Do not cite as CDR / model improvements.",
+  "liveEvalStatus": "mock-only",
+  "matchPolicy": {
+    "id": "matchKeys-v1-primary-greedy",
+    "version": 1,
+    "primaryKeysRequired": 1,
+    "aliasesAloneInsufficient": true,
+    "findingBlobFields": [
+      "title",
+      "description",
+      "defectClass",
+      "matchKeys",
+      "locators.path",
+      "locators.symbol"
+    ],
+    "normalize": "lower-alnum-space-substring",
+    "severityGate": true,
+    "locatorPathSoftBoost": true,
+    "matching": "greedy-1to1-max-matchedOn"
+  },
+  "resourceParity": {
+    "schemaVersion": 1,
+    "sameCases": true,
+    "sameToolSurface": ["list_files", "read_file", "search", "run_command"],
+    "sameFindingSchema": true,
+    "sameModelEnvVars": ["OPENAI_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
+    "defaultModel": "gpt-4o-mini",
+    "baselineBudget": { "maxToolCalls": 40, "maxWallTimeMs": 180000 },
+    "checkmateBudget": {
+      "maxToolCalls": 48,
+      "maxWallTimeMs": 240000,
+      "note": "Modest headroom for staged verify; same tools, no new agent tools"
+    },
+    "differencesExplained": [
+      "Checkmate adds mental-model + hypothesize + verify stages (procedure).",
+      "Checkmate tool/time budget is slightly higher to allow sandbox proofs.",
+      "Same provider/model env when live; mock mode is harness smoke only."
+    ]
+  },
+  "model": {
+    "requested": "gpt-4o-mini",
+    "providerEnv": null,
+    "openaiKeyPresent": false,
+    "anthropicKeyPresent": false
+  },
+  "aggregates": {
+    "casesAttempted": 10,
+    "casesScored": 10,
+    "casesErrored": 0,
+    "baseline": {
+      "truePositives": 10,
+      "falseNegatives": 0,
+      "falsePositives": 0,
+      "meanRecall": 1,
+      "meanPrecision": 1
+    },
+    "checkmate": {
+      "truePositives": 10,
+      "falseNegatives": 0,
+      "falsePositives": 0,
+      "meanRecall": 1,
+      "meanPrecision": 1
+    },
+    "deltaMeanRecall": 0,
+    "metricsAreLive": false
+  },
+  "livePlaceholders": {
+    "note": "Pending OPENAI_API_KEY (or confirmed provider) + pnpm evaluate -- --live",
+    "criticalDefectRecall_baseline": null,
+    "criticalDefectRecall_checkmate": null,
+    "precision_baseline": null,
+    "precision_checkmate": null,
+    "costEstimateUsd": null,
+    "wallTimeTotalMs": null
+  },
+  "rows": [
+    {
+      "caseId": "01-auth-idor",
+      "baseline": {
+        "schemaVersion": 1,
+        "caseId": "01-auth-idor",
+        "producedBy": "fixture",
+        "truePositives": 1,
+        "falseNegatives": 0,
+        "falsePositives": 0,
+        "recall": 1,
+        "precision": 1,
+        "matches": [
+          {
+            "defectId": "D1-idor-order-get",
+            "matched": true,
+            "findingId": "F1",
+            "matchedOn": ["idor", "missing authorization", "orders", "locator_path"]
+          }
+        ],
+        "unmatchedFindingIds": []
+      },
+      "checkmate": {
+        "schemaVersion": 1,
+        "caseId": "01-auth-idor",
+        "producedBy": "checkmate",
+        "truePositives": 1,
+        "falseNegatives": 0,
+        "falsePositives": 0,
+        "recall": 1,
+        "precision": 1,
+        "matches": [
+          {
+            "defectId": "D1-idor-order-get",
+            "matched": true,
+            "findingId": "F1",
+            "matchedOn": ["idor", "missing authorization", "orders", "locator_path"]
+          }
+        ],
+        "unmatchedFindingIds": []
+      },
+      "baselineMock": true,
+      "checkmateMock": true,
+      "label": "MOCK-SMOKE",
+      "mentalModelPath": "artifacts/<runId>/mental_model.json"
+    }
+  ],
+  "sampleTrajectories": [
+    "trajectories/sample-baseline-01-auth-idor-mock.json",
+    "trajectories/sample-checkmate-01-auth-idor-mock.json"
+  ],
+  "viewerHint": "Open apps/web/index.html via `pnpm view:results` (serves comparison JSON)."
+}

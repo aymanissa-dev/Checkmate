@@ -16,6 +16,7 @@
     "evaluate:score": "pnpm --filter @checkmate/eval run score",
     "evaluate:compare": "tsx scripts/compare-eval.ts",
     "evaluate": "tsx scripts/compare-eval.ts",
+    "view:results": "node apps/web/serve.mjs",
     "guard:truth-isolation": "tsx scripts/guard-truth-isolation.ts",
     "smoke:cases": "tsx scripts/smoke-cases.ts",
     "test:fixtures": "tsx scripts/test-fixtures.ts",

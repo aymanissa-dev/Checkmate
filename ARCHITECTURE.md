@@ -10,9 +10,11 @@ Compare a **fair one-shot baseline** (senior engineer review + shared tools + bu
 packages/
   schemas/    # Zod contracts (schemaVersion: 1)
   sandbox/    # list_files, read_file, search, run_command
-  eval/       # deterministic scorer (no LLM)
+  eval/       # deterministic scorer (matchKeys-v1 frozen) + resource parity
   baseline/   # one-shot runner + model provider abstraction
   checkmate/  # staged mental-model + verification loop (Phase D)
+apps/
+  web/        # minimal static results viewer (Phase E)
 ```
 
 ## Case layout
@@ -49,8 +51,15 @@ cases/<id>/
 - **openai** — Chat Completions when `OPENAI_API_KEY` is set
 - Anthropic — not implemented yet
 
+## Phase E comparison
+
+- `pnpm evaluate` → `artifacts/results/comparison.{json,md}`
+- Labels: `MOCK-SMOKE` | `LIVE` | `SKIPPED-NO-KEY`
+- Viewer: `pnpm view:results` → `apps/web`
+- Human inputs: `PROVIDE_CHECKLIST.md`
+
 ## Non-goals (this phase)
 
-- Full Checkmate product UI / GitHub App / Change Contract
+- Full Checkmate product SaaS / GitHub App / Change Contract
 - Multi-agent swarm theater
 - Fabricated leaderboard metrics without keyed LLM runs

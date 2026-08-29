@@ -30,7 +30,23 @@ Evaluation-first log of hypotheses, measurements, and keep/kill decisions.
 
 ---
 
+## ITERATION: Measured comparison readiness (Phase E)
+
+- **Date:** 2026-08-29
+- **Hypothesis:** Freezing `matchKeys-v1` scoring + emitting judge-ready markdown/JSON comparison reports with explicit resource parity and live placeholders will make baseline vs Checkmate measurable as soon as API keys exist — without claiming CDR until then.
+- **Change:**
+  - Froze scorer policy export (`MATCH_POLICY` / `matchKeys-v1-primary-greedy`)
+  - Extended `pnpm evaluate` to write `artifacts/results/comparison.{json,md}` with aggregates, parity, and `MOCK-SMOKE` | `LIVE` | `SKIPPED-NO-KEY` labels
+  - Documented resource parity; committed example report format; minimal results viewer (`apps/web`); `PROVIDE_CHECKLIST.md`; video script skeleton
+- **Why:** Judges need a reproducible comparison surface; live metrics must not be invented when keys are absent.
+- **Metric before:** Pending real LLM baseline (Phase D) — **not fabricated**.
+- **Metric after:** **SKIPPED** — `OPENAI_API_KEY` / `ANTHROPIC_API_KEY` absent in this environment. Mock harness comparison only. Live placeholders remain `null`.
+- **Decision:** **Keep** report pipeline and viewer; run live eval only after human provides keys (see `PROVIDE_CHECKLIST.md`).
+- **Notes:** If keys appear later, re-run `pnpm evaluate -- --live` and replace this SKIPPED row with actual aggregates (still no fabrication).
+
+---
+
 ## Stage: CHECKMATE (measurement)
 
-- Status: harness ready; **real model metrics pending API keys**
-- Next: Phase E measured comparison on live providers; Phase G UI later
+- Status: harness + Phase E report/viewer ready; **real model metrics SKIPPED (no API key)**
+- Next: human completes `PROVIDE_CHECKLIST.md` → live eval → fill changelog metrics → video
