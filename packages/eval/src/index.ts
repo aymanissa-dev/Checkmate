@@ -12,6 +12,11 @@ import {
   type ScoreReport,
   type Severity,
 } from "@checkmate/schemas";
+import { MATCH_POLICY, MATCH_POLICY_ID } from "./match-policy.js";
+
+export { MATCH_POLICY, MATCH_POLICY_ID } from "./match-policy.js";
+export { RESOURCE_PARITY } from "./resource-parity.js";
+export type { ResourceParity } from "./resource-parity.js";
 
 const SEVERITY_RANK: Record<Severity, number> = {
   info: 0,
@@ -21,7 +26,8 @@ const SEVERITY_RANK: Record<Severity, number> = {
   critical: 4,
 };
 
-function normalizeKey(s: string): string {
+/** Frozen normalize used by matchKeys-v1 (see MATCH_POLICY). */
+export function normalizeKey(s: string): string {
   return s.toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 }
 
@@ -36,7 +42,11 @@ function findingTextBlob(f: Finding): string {
   return normalizeKey(parts.join(" "));
 }
 
-function defectMatched(
+/**
+ * Frozen matchKeys-v1: ≥1 primary truth.matchKey must hit the finding blob.
+ * Aliases may appear in matchedOn but never create a hit alone.
+ */
+export function defectMatched(
   defect: GroundTruthDefect,
   finding: Finding,
 ): { matched: boolean; matchedOn: string[] } {
@@ -48,16 +58,12 @@ function defectMatched(
     if (!nk) continue;
     if (blob.includes(nk)) matchedOn.push(key);
   }
-  // Require at least one primary matchKey (not only aliases) OR ≥1 alias if
-  // primary keys are all present as substrings of finding matchKeys/title.
-  const primaryHits = defect.matchKeys.filter((k) =>
-    matchedOn.includes(k),
-  );
-  const matched = primaryHits.length >= 1;
+  const primaryHits = defect.matchKeys.filter((k) => matchedOn.includes(k));
+  const matched = primaryHits.length >= MATCH_POLICY.primaryKeysRequired;
 
   if (!matched) return { matched: false, matchedOn };
 
-  if (defect.requiredSeverityAtLeast) {
+  if (MATCH_POLICY.severityGate && defect.requiredSeverityAtLeast) {
     const need = SEVERITY_RANK[defect.requiredSeverityAtLeast];
     if (SEVERITY_RANK[finding.severity] < need) {
       return {
@@ -70,8 +76,11 @@ function defectMatched(
     }
   }
 
-  // Soft locator boost: if truth has locators, prefer findings that cite same path
-  if (defect.locators.length > 0 && finding.locators.length > 0) {
+  if (
+    MATCH_POLICY.locatorPathSoftBoost &&
+    defect.locators.length > 0 &&
+    finding.locators.length > 0
+  ) {
     const truthPaths = new Set(
       defect.locators.map((l) => l.path.replace(/\\/g, "/").toLowerCase()),
     );

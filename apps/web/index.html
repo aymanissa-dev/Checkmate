@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Checkmate — results</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="header">
+        <p class="brand">Checkmate</p>
+        <h1>Evaluation results</h1>
+        <p class="lede">
+          Baseline vs staged verification on the frozen case corpus. Mock and
+          live runs are labeled explicitly — never confuse harness smoke with
+          model metrics.
+        </p>
+      </header>
+
+      <section id="status" class="status" aria-live="polite">
+        Loading <code>data/comparison.json</code>…
+      </section>
+
+      <section id="parity" class="block" hidden></section>
+      <section id="aggregates" class="block" hidden></section>
+      <section id="table" class="block" hidden></section>
+      <section id="detail" class="block" hidden></section>
+      <section id="trajectories" class="block" hidden></section>
+
+      <footer class="footer">
+        <p>
+          Serve with <code>pnpm view:results</code>. Source report:
+          <code>artifacts/results/comparison.{json,md}</code>
+        </p>
+      </footer>
+    </div>
+    <script src="./app.js" type="module"></script>
+  </body>
+</html>
