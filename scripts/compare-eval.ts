@@ -3,13 +3,19 @@
  * Phase E: run baseline + checkmate and emit judge-ready comparison reports.
  *
  * Default: mock/dry-run (CI / no keys). Mock scores are HARNESS SMOKE ONLY.
- * --live: real providers when OPENAI_API_KEY (or equivalent) is present.
+ * --live: real providers when the selected (or default HF) provider has a key.
+ * Default provider is Hugging Face; OpenAI only if CHECKMATE_MODEL_PROVIDER=openai.
  * If --live but keys absent → SKIPPED (no fabricated metrics).
  */
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runBaseline } from "../packages/baseline/src/index.ts";
+import {
+  runBaseline,
+  getHfToken,
+  isHuggingFaceProviderName,
+  DEFAULT_HF_MODEL,
+} from "../packages/baseline/src/index.ts";
 import { runCheckmate } from "../packages/checkmate/src/index.ts";
 import {
   MATCH_POLICY,
@@ -47,6 +53,7 @@ interface ComparisonReport {
     requested: string;
     providerEnv: string | undefined;
     openaiKeyPresent: boolean;
+    huggingfaceKeyPresent: boolean;
     anthropicKeyPresent: boolean;
   };
   aggregates: {
@@ -85,11 +92,56 @@ interface ComparisonReport {
   viewerHint: string;
 }
 
+function selectedProvider(): string {
+  return (process.env.CHECKMATE_MODEL_PROVIDER ?? "").toLowerCase();
+}
+
+/** Effective provider: unset → huggingface (OpenAI is opt-in only). */
+function effectiveProvider(): string {
+  const explicit = selectedProvider();
+  if (explicit) return explicit;
+  return RESOURCE_PARITY.defaultProvider;
+}
+
+/** Whether a live key exists for the *selected* (or default HF) provider. */
 function hasLiveKey(): boolean {
-  return Boolean(
-    process.env.OPENAI_API_KEY?.trim() ||
-      process.env.ANTHROPIC_API_KEY?.trim(),
-  );
+  const provider = effectiveProvider();
+  if (provider === "openai") {
+    return Boolean(process.env.OPENAI_API_KEY?.trim());
+  }
+  if (isHuggingFaceProviderName(provider)) {
+    return Boolean(getHfToken());
+  }
+  if (provider === "anthropic") {
+    return Boolean(process.env.ANTHROPIC_API_KEY?.trim());
+  }
+  if (provider === "mock") return false;
+  // Unknown → treat as default HF requirement
+  return Boolean(getHfToken());
+}
+
+function missingKeyHint(): string {
+  const provider = effectiveProvider();
+  if (isHuggingFaceProviderName(provider)) {
+    return "HF_TOKEN or HUGGINGFACE_API_KEY";
+  }
+  if (provider === "openai") return "OPENAI_API_KEY";
+  if (provider === "anthropic") return "ANTHROPIC_API_KEY";
+  return "HF_TOKEN or HUGGINGFACE_API_KEY";
+}
+
+function requestedModel(): string {
+  if (process.env.CHECKMATE_MODEL?.trim()) {
+    return process.env.CHECKMATE_MODEL.trim();
+  }
+  const provider = effectiveProvider();
+  if (provider === "openai") {
+    return RESOURCE_PARITY.defaultOpenaiModel;
+  }
+  if (isHuggingFaceProviderName(provider)) {
+    return DEFAULT_HF_MODEL;
+  }
+  return RESOURCE_PARITY.defaultModel;
 }
 
 function mean(nums: number[]): number | null {
@@ -127,7 +179,7 @@ function buildMarkdown(report: ComparisonReport): string {
   );
   lines.push("");
   lines.push(
-    `Default model (live): \`${report.resourceParity.defaultModel}\` via \`CHECKMATE_MODEL\` / OpenAI. Requested this run: \`${report.model.requested}\`.`,
+    `Default model (live): \`${report.model.requested}\` via \`CHECKMATE_MODEL\` / provider (default \`huggingface\`; OpenAI opt-in). Requested this run: \`${report.model.requested}\`.`,
   );
   lines.push("");
   for (const d of report.resourceParity.differencesExplained) {
@@ -244,8 +296,7 @@ async function main(): Promise<void> {
     useMock = true;
     liveEvalStatus = "skipped-no-key";
     topLabel = "SKIPPED-NO-KEY";
-    disclaimer =
-      "LIVE REQUESTED BUT SKIPPED: no OPENAI_API_KEY / ANTHROPIC_API_KEY. Ran mock harness only — NOT model metrics. Do not invent CDR numbers.";
+    disclaimer = `LIVE REQUESTED BUT SKIPPED: no ${missingKeyHint()}. Ran mock harness only — NOT model metrics. Do not invent CDR numbers.`;
   } else {
     mode = "mock";
     useMock = true;
@@ -276,7 +327,7 @@ async function main(): Promise<void> {
 
   if (mode === "skipped-no-key") {
     console.log(
-      "SKIPPED live eval: set OPENAI_API_KEY in .env (see PROVIDE_CHECKLIST.md).\n",
+      `SKIPPED live eval: set ${missingKeyHint()} in .env (see PROVIDE_CHECKLIST.md).\n`,
     );
   }
 
@@ -386,9 +437,10 @@ async function main(): Promise<void> {
     matchPolicy: MATCH_POLICY,
     resourceParity: RESOURCE_PARITY,
     model: {
-      requested: process.env.CHECKMATE_MODEL ?? RESOURCE_PARITY.defaultModel,
-      providerEnv: process.env.CHECKMATE_MODEL_PROVIDER,
+      requested: requestedModel(),
+      providerEnv: process.env.CHECKMATE_MODEL_PROVIDER?.trim() || "huggingface",
       openaiKeyPresent: Boolean(process.env.OPENAI_API_KEY?.trim()),
+      huggingfaceKeyPresent: Boolean(getHfToken()),
       anthropicKeyPresent: Boolean(process.env.ANTHROPIC_API_KEY?.trim()),
     },
     aggregates: {
@@ -422,7 +474,7 @@ async function main(): Promise<void> {
     livePlaceholders: {
       note: metricsAreLive
         ? "Live metrics present in aggregates; placeholders left for submission packing."
-        : "Pending OPENAI_API_KEY (or confirmed provider) + pnpm evaluate -- --live",
+        : "Pending HF_TOKEN (default) or CHECKMATE_MODEL_PROVIDER=openai + OPENAI_API_KEY + pnpm evaluate -- --live",
       criticalDefectRecall_baseline: null,
       criticalDefectRecall_checkmate: null,
       precision_baseline: null,

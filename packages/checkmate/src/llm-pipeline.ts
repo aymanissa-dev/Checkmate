@@ -21,6 +21,8 @@ import {
 import { createCaseSandbox } from "@checkmate/sandbox";
 import {
   OpenAIProvider,
+  HuggingFaceProvider,
+  isHuggingFaceProviderName,
   type ChatMessage,
   type ModelProvider,
   type ToolSpec,
@@ -160,8 +162,13 @@ async function nextStageAction(
   | { type: "tool_call"; toolName: "list_files" | "read_file" | "search" | "run_command"; toolArgs: Record<string, unknown>; assistantText?: string }
   | { type: "stage_complete"; artifact: StageCompleteArtifact; raw: string }
 > {
-  // Prefer OpenAI-style JSON when provider is OpenAI; otherwise use nextAction.
-  if (provider instanceof OpenAIProvider || provider.name === "openai") {
+  // Prefer structured JSON stage protocol for OpenAI + Hugging Face providers.
+  if (
+    provider instanceof OpenAIProvider ||
+    provider instanceof HuggingFaceProvider ||
+    provider.name === "openai" ||
+    isHuggingFaceProviderName(provider.name)
+  ) {
     const action = await provider.nextAction({
       messages: [
         ...messages,

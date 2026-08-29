@@ -14,11 +14,11 @@
 | Baseline | 40 | 180000 | list_files, read_file, search, run_command |
 | Checkmate | 48 | 240000 | same |
 
-Default model (live): `gpt-4o-mini` via `CHECKMATE_MODEL` / OpenAI. Requested this run: `gpt-4o-mini`.
+Default model (live): `Qwen/Qwen2.5-7B-Instruct` via `CHECKMATE_MODEL` / provider (default `huggingface`; OpenAI opt-in). Requested this run: `Qwen/Qwen2.5-7B-Instruct`.
 
 - Checkmate adds mental-model + hypothesize + verify stages (procedure).
 - Checkmate tool/time budget is slightly higher to allow sandbox proofs.
-- Same provider/model env when live; mock mode is harness smoke only.
+- Same default provider/model when live (Hugging Face / Qwen); OpenAI is opt-in via CHECKMATE_MODEL_PROVIDER=openai; mock mode is harness smoke only.
 
 ## Aggregates
 
@@ -39,7 +39,7 @@ Filled only after a keyed live run. Until then these stay `null` — never inven
 
 ```json
 {
-  "note": "Pending OPENAI_API_KEY (or confirmed provider) + pnpm evaluate -- --live",
+  "note": "Pending HF_TOKEN (default) or CHECKMATE_MODEL_PROVIDER=openai + OPENAI_API_KEY + pnpm evaluate -- --live",
   "criticalDefectRecall_baseline": null,
   "criticalDefectRecall_checkmate": null,
   "precision_baseline": null,

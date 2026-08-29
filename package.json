@@ -21,6 +21,7 @@
     "guard:truth-isolation": "tsx scripts/guard-truth-isolation.ts",
     "smoke:cases": "tsx scripts/smoke-cases.ts",
     "test:fixtures": "tsx scripts/test-fixtures.ts",
+    "test:huggingface-provider": "tsx packages/baseline/src/huggingface-provider.test.ts",
     "prepare": "pnpm -r run build"
   },
   "devDependencies": {

@@ -28,8 +28,11 @@
     "sameCases": true,
     "sameToolSurface": ["list_files", "read_file", "search", "run_command"],
     "sameFindingSchema": true,
-    "sameModelEnvVars": ["OPENAI_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
-    "defaultModel": "gpt-4o-mini",
+    "sameModelEnvVars": ["OPENAI_API_KEY", "HF_TOKEN", "HUGGINGFACE_API_KEY", "CHECKMATE_MODEL", "CHECKMATE_MODEL_PROVIDER"],
+    "defaultProvider": "huggingface",
+    "defaultModel": "Qwen/Qwen2.5-7B-Instruct",
+    "defaultHfModel": "Qwen/Qwen2.5-7B-Instruct",
+    "defaultOpenaiModel": "gpt-4o-mini",
     "baselineBudget": { "maxToolCalls": 40, "maxWallTimeMs": 180000 },
     "checkmateBudget": {
       "maxToolCalls": 48,
@@ -39,13 +42,14 @@
     "differencesExplained": [
       "Checkmate adds mental-model + hypothesize + verify stages (procedure).",
       "Checkmate tool/time budget is slightly higher to allow sandbox proofs.",
-      "Same provider/model env when live; mock mode is harness smoke only."
+      "Same default provider/model when live (Hugging Face / Qwen); OpenAI is opt-in via CHECKMATE_MODEL_PROVIDER=openai; mock mode is harness smoke only."
     ]
   },
   "model": {
-    "requested": "gpt-4o-mini",
-    "providerEnv": null,
+    "requested": "Qwen/Qwen2.5-7B-Instruct",
+    "providerEnv": "huggingface",
     "openaiKeyPresent": false,
+    "huggingfaceKeyPresent": false,
     "anthropicKeyPresent": false
   },
   "aggregates": {
@@ -70,7 +74,7 @@
     "metricsAreLive": false
   },
   "livePlaceholders": {
-    "note": "Pending OPENAI_API_KEY (or confirmed provider) + pnpm evaluate -- --live",
+    "note": "Pending HF_TOKEN (default) or CHECKMATE_MODEL_PROVIDER=openai + OPENAI_API_KEY + pnpm evaluate -- --live",
     "criticalDefectRecall_baseline": null,
     "criticalDefectRecall_checkmate": null,
     "precision_baseline": null,

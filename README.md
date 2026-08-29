@@ -75,7 +75,7 @@ Fair one-shot senior-engineer review: shared finding schema, same four tools, bu
 | | Baseline | Checkmate |
 |---|---|---|
 | Tools | list_files, read_file, search, run_command | same |
-| Model (live) | `CHECKMATE_MODEL` / OpenAI | same env |
+| Model (live) | `CHECKMATE_MODEL` / OpenAI or Hugging Face | same env |
 | Budget | 40 / 180s | 48 / 240s (verify headroom) |
 
 ## Product UI
@@ -112,7 +112,7 @@ pnpm view:results
 
 ## Limitations
 
-- Live OpenAI eval requires `OPENAI_API_KEY`; Anthropic provider not implemented
+- Live eval defaults to **Hugging Face** (`HF_TOKEN` / `HUGGINGFACE_API_KEY`); OpenAI is optional (`CHECKMATE_MODEL_PROVIDER=openai` + `OPENAI_API_KEY`); Anthropic not implemented
 - Mock scores are harness smoke, not model performance
 - Change Contract is a UI stub; no auto-fix / GitHub App / webhooks
 - Engineering map for live runs is derived or sample-authored; LLM-authored rich maps are optional later

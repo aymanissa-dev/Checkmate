@@ -62,8 +62,9 @@ Offline demo bundle: `apps/web/data/sample-analysis/`.
 
 ## Model providers
 
-- **mock** — fixture / staged dry-run for CI (not model performance)
-- **openai** — Chat Completions when `OPENAI_API_KEY` is set
+- **huggingface** / **hf** — **default** when `CHECKMATE_MODEL_PROVIDER` is unset; OpenAI-compatible Inference Providers router (`HF_TOKEN` / `HUGGINGFACE_API_KEY`); structured JSON tool loop (optional native tools via `CHECKMATE_HF_NATIVE_TOOLS=1`); default model `Qwen/Qwen2.5-7B-Instruct`
+- **openai** — opt-in only when `CHECKMATE_MODEL_PROVIDER=openai` **and** `OPENAI_API_KEY` is set
+- **mock** — fixture / staged dry-run for CI (not model performance); no API keys required
 - Anthropic — not implemented yet
 
 ## Comparison reports

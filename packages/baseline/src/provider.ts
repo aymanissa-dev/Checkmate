@@ -1,7 +1,9 @@
 /**
- * Model provider abstraction — swap OpenAI/Anthropic/mock without changing the loop.
+ * Model provider abstraction — swap OpenAI/Hugging Face/Anthropic/mock without changing the loop.
  * Real LLM calls require API keys; mock/dry-run does not fabricate evaluation scores.
  */
+
+import { getHfToken, isHuggingFaceProviderName } from "./huggingface-provider.js";
 
 export interface ChatMessage {
   role: "system" | "user" | "assistant" | "tool";
@@ -38,25 +40,47 @@ export interface ModelProvider {
   }): Promise<ModelAction>;
 }
 
+export type ProviderMode =
+  | "mock"
+  | "openai"
+  | "huggingface"
+  | "anthropic"
+  | "unset";
+
+/** Default when CHECKMATE_MODEL_PROVIDER is unset. OpenAI is opt-in only. */
+export const DEFAULT_MODEL_PROVIDER = "huggingface" as const;
+
 export function getProviderFromEnv(): {
-  mode: "mock" | "openai" | "anthropic" | "unset";
+  mode: ProviderMode;
   note: string;
 } {
   const explicit = (process.env.CHECKMATE_MODEL_PROVIDER ?? "").toLowerCase();
   if (explicit === "mock" || process.env.CHECKMATE_DRY_RUN === "1") {
     return { mode: "mock", note: "Explicit mock/dry-run mode" };
   }
-  if (explicit === "openai" || process.env.OPENAI_API_KEY) {
-    if (!process.env.OPENAI_API_KEY) {
+  if (explicit === "openai") {
+    if (!process.env.OPENAI_API_KEY?.trim()) {
       return {
         mode: "unset",
-        note: "OPENAI requested but OPENAI_API_KEY missing",
+        note: "openai requested but OPENAI_API_KEY missing",
       };
     }
-    return { mode: "openai", note: "OpenAI provider selected" };
+    return { mode: "openai", note: "OpenAI provider selected (explicit)" };
   }
-  if (explicit === "anthropic" || process.env.ANTHROPIC_API_KEY) {
-    if (!process.env.ANTHROPIC_API_KEY) {
+  if (isHuggingFaceProviderName(explicit)) {
+    if (!getHfToken()) {
+      return {
+        mode: "unset",
+        note: "huggingface requested but HF_TOKEN / HUGGINGFACE_API_KEY missing",
+      };
+    }
+    return {
+      mode: "huggingface",
+      note: "Hugging Face Inference Providers (OpenAI-compatible router) selected",
+    };
+  }
+  if (explicit === "anthropic") {
+    if (!process.env.ANTHROPIC_API_KEY?.trim()) {
       return {
         mode: "unset",
         note: "Anthropic requested but ANTHROPIC_API_KEY missing",
@@ -64,8 +88,21 @@ export function getProviderFromEnv(): {
     }
     return { mode: "anthropic", note: "Anthropic provider selected" };
   }
+  if (explicit) {
+    return {
+      mode: "unset",
+      note: `Unknown CHECKMATE_MODEL_PROVIDER=${explicit}`,
+    };
+  }
+  // Default provider when unset: Hugging Face (OpenAI only if CHECKMATE_MODEL_PROVIDER=openai)
+  if (getHfToken()) {
+    return {
+      mode: "huggingface",
+      note: "Hugging Face provider (default when CHECKMATE_MODEL_PROVIDER unset)",
+    };
+  }
   return {
     mode: "unset",
-    note: "No API key / provider — use CHECKMATE_DRY_RUN=1 or CHECKMATE_MODEL_PROVIDER=mock",
+    note: "Default provider is huggingface but HF_TOKEN / HUGGINGFACE_API_KEY missing — use CHECKMATE_DRY_RUN=1 / CHECKMATE_MODEL_PROVIDER=mock, or set HF_TOKEN for live (OpenAI: set CHECKMATE_MODEL_PROVIDER=openai + OPENAI_API_KEY)",
   };
 }

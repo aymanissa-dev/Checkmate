@@ -10,6 +10,7 @@ import { createCaseSandbox } from "@checkmate/sandbox";
 import type { ModelProvider, ChatMessage, ToolSpec } from "./provider.js";
 import { MockModelProvider } from "./mock-provider.js";
 import { OpenAIProvider } from "./openai-provider.js";
+import { HuggingFaceProvider } from "./huggingface-provider.js";
 import { getProviderFromEnv } from "./provider.js";
 
 export const BASELINE_SYSTEM_PROMPT = `You are a senior software engineer performing a one-shot critical review.
@@ -122,11 +123,19 @@ export function resolveProvider(
       isMock: false,
     };
   }
+  if (env.mode === "huggingface") {
+    return {
+      provider: new HuggingFaceProvider(),
+      mode: "huggingface",
+      note: env.note,
+      isMock: false,
+    };
+  }
   if (env.mode === "anthropic") {
     // Anthropic wiring deferred — fall back to clear skip message via mock stub
     // with empty findings would fabricate. Instead throw for real path.
     throw new Error(
-      "Anthropic provider selected but not yet implemented. Use OPENAI_API_KEY or CHECKMATE_MODEL_PROVIDER=mock",
+      "Anthropic provider selected but not yet implemented. Default provider is huggingface (HF_TOKEN); or set CHECKMATE_MODEL_PROVIDER=openai|mock",
     );
   }
   // No key: default to mock for local/CI, with clear labeling
