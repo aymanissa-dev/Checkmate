@@ -35,6 +35,25 @@ export const LocatorSchema = z.object({
 });
 export type Locator = z.infer<typeof LocatorSchema>;
 
+export const ToolNameSchema = z.enum([
+  "list_files",
+  "read_file",
+  "search",
+  "run_command",
+]);
+export type ToolName = z.infer<typeof ToolNameSchema>;
+
+/** Checkmate staged procedure stages (single agent, not multi-agent theater). */
+export const CheckmateStageSchema = z.enum([
+  "scope",
+  "understand",
+  "model",
+  "hypothesize",
+  "verify",
+  "report",
+]);
+export type CheckmateStage = z.infer<typeof CheckmateStageSchema>;
+
 /**
  * Agent-facing mental model of an application under review.
  * Must never include ground-truth defect IDs or scorer-only fields.
@@ -69,6 +88,13 @@ export const FindingSchema = z.object({
   matchKeys: z.array(z.string().min(1)).default([]),
   confidence: z.number().min(0).max(1).optional(),
   proofIds: z.array(z.string()).default([]),
+  /**
+   * Verification status for Checkmate findings.
+   * Confirmed requires proof with toolResultRefs; unverified must not invent severity certainty.
+   */
+  verificationStatus: z
+    .enum(["confirmed", "unverified", "inconclusive", "refuted"])
+    .optional(),
 });
 export type Finding = z.infer<typeof FindingSchema>;
 
@@ -79,6 +105,17 @@ export const FindingsDocumentSchema = z.object({
   findings: z.array(FindingSchema),
 });
 export type FindingsDocument = z.infer<typeof FindingsDocumentSchema>;
+
+/**
+ * Reference from a proof to a real trajectory tool_result step.
+ * Confirmed findings must cite at least one such ref (or an on-disk proof artifact).
+ */
+export const ToolResultRefSchema = z.object({
+  stepIndex: z.number().int().nonnegative(),
+  toolName: ToolNameSchema.optional(),
+  excerpt: z.string().optional(),
+});
+export type ToolResultRef = z.infer<typeof ToolResultRefSchema>;
 
 /**
  * Evidence / proof attached to a finding (agent-produced).
@@ -99,9 +136,47 @@ export const ProofSchema = z.object({
   locators: z.array(LocatorSchema).default([]),
   command: z.string().optional(),
   stdoutExcerpt: z.string().optional(),
+  /** When true, claim was verified via sandbox tool output — not speculation. */
   verified: z.boolean().optional(),
+  /** Trajectory tool_result step indexes that back this proof. */
+  toolResultRefs: z.array(ToolResultRefSchema).default([]),
+  /** Relative path under the run artifacts dir (e.g. proofs/P1.json). */
+  artifactPath: z.string().optional(),
 });
 export type Proof = z.infer<typeof ProofSchema>;
+
+/**
+ * Testable critical-risk claim produced in the Hypothesize stage.
+ * Must not invent severity for unverified claims.
+ */
+export const HypothesisSchema = z.object({
+  schemaVersion: z.literal(SCHEMA_VERSION),
+  id: z.string().min(1),
+  claim: z.string().min(1),
+  /** Suspected class — informational until verified. */
+  defectClass: DefectClassSchema.optional(),
+  /** Proposed severity only if later confirmed; otherwise omit or treat as tentative. */
+  tentativeSeverity: SeveritySchema.optional(),
+  relatedComponents: z.array(z.string()).default([]),
+  proposedCheck: z.string().min(1),
+  status: z.enum([
+    "proposed",
+    "confirmed",
+    "refuted",
+    "unverified",
+    "inconclusive",
+  ]),
+  proofIds: z.array(z.string()).default([]),
+  notes: z.string().optional(),
+});
+export type Hypothesis = z.infer<typeof HypothesisSchema>;
+
+export const HypothesesDocumentSchema = z.object({
+  schemaVersion: z.literal(SCHEMA_VERSION),
+  caseId: z.string().min(1),
+  hypotheses: z.array(HypothesisSchema),
+});
+export type HypothesesDocument = z.infer<typeof HypothesesDocumentSchema>;
 
 /**
  * Scorer-only ground-truth defect. Lives in cases/<id>/truth.json.
@@ -132,14 +207,6 @@ export const EvaluationCaseSchema = z.object({
 });
 export type EvaluationCase = z.infer<typeof EvaluationCaseSchema>;
 
-export const ToolNameSchema = z.enum([
-  "list_files",
-  "read_file",
-  "search",
-  "run_command",
-]);
-export type ToolName = z.infer<typeof ToolNameSchema>;
-
 export const TrajectoryStepSchema = z.object({
   index: z.number().int().nonnegative(),
   type: z.enum(["message", "tool_call", "tool_result", "final"]),
@@ -149,6 +216,8 @@ export const TrajectoryStepSchema = z.object({
   toolArgs: z.record(z.unknown()).optional(),
   toolResult: z.string().optional(),
   timestamp: z.string().datetime().optional(),
+  /** Checkmate stage label when the step belongs to the staged loop. */
+  stage: CheckmateStageSchema.optional(),
 });
 export type TrajectoryStep = z.infer<typeof TrajectoryStepSchema>;
 

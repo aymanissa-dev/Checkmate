@@ -18,7 +18,9 @@
   },
   "dependencies": {
     "@checkmate/schemas": "workspace:*",
-    "@checkmate/sandbox": "workspace:*"
+    "@checkmate/sandbox": "workspace:*",
+    "@checkmate/eval": "workspace:*",
+    "@checkmate/baseline": "workspace:*"
   },
   "devDependencies": {
     "tsx": "^4.19.3",

@@ -28,6 +28,13 @@ function isAllowedPath(rel) {
     // baseline may mention denial of truth.json in sandbox config — allow explicit deny strings
     return true;
   }
+  if (
+    rel.startsWith("packages/checkmate/") &&
+    /runner|cli|mock|llm|pipeline|prompts|fixture/.test(rel)
+  ) {
+    // checkmate may mention denial of ground-truth / sandbox policy
+    return true;
+  }
   if (rel.startsWith("packages/sandbox/")) return true;
   if (rel === "README.md" || rel === "ARCHITECTURE.md" || rel === "REPRODUCTION.md") {
     return true;

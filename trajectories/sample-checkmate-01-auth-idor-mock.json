@@ -1,0 +1,240 @@
+{
+  "schemaVersion": 1,
+  "caseId": "01-auth-idor",
+  "runId": "checkmate-01-auth-idor-1788004673908",
+  "agent": "fixture",
+  "model": "checkmate-mock-pipeline-v1",
+  "provider": "mock",
+  "startedAt": "2026-08-29T11:57:53.908Z",
+  "finishedAt": "2026-08-29T11:57:53.916Z",
+  "budget": {
+    "maxToolCalls": 48,
+    "maxWallTimeMs": 240000
+  },
+  "usage": {
+    "toolCalls": 8,
+    "wallTimeMs": 8
+  },
+  "steps": [
+    {
+      "index": 0,
+      "type": "message",
+      "role": "system",
+      "content": "You are Checkmate: a single-agent staged critical review procedure.\n\nStages in order: scope → understand → model → hypothesize → verify → report.\n\nBehavioral rules:\n- Verification over generation.\n- If you cannot verify, mark unverified/inconclusive — do not invent severity.\n- Consequential actions only in the case sandbox; never touch ground-truth files.\n- Same tools as baseline: list_files, read_file, search, run_command.\n- Prefer fewer confirmed findings with proof over many speculative ones.\n\nCritical defect verification checklist (apply in verify stage):\n1. Prefer the smallest sandbox check that would falsify the claim.\n2. Cite concrete code (read_file) and/or command output (run_command) before confirming.\n3. If the check fails to reproduce or is ambiguous → mark unverified/inconclusive — do NOT invent severity.\n4. Never access ground-truth or scorer files; they are outside this workspace.\n5. Confirmed findings MUST attach proof objects that reference real tool_result steps.\n",
+      "timestamp": "2026-08-29T11:57:53.908Z",
+      "stage": "scope"
+    },
+    {
+      "index": 1,
+      "type": "message",
+      "role": "user",
+      "content": "Case ID: 01-auth-idor\nRun mock staged procedure. Critical defect verification checklist (apply in verify stage):\n1. Prefer the smallest sandbox check that would falsify the claim.\n2. Cite concrete code (read_file) and/or command output (run_command) before confirming.\n3. If the check fails to reproduce or is ambiguous → mark unverified/inconclusive — do NOT invent severity.\n4. Never access ground-truth or scorer files; they are outside this workspace.\n5. Confirmed findings MUST attach proof objects that reference real tool_result steps.",
+      "timestamp": "2026-08-29T11:57:53.908Z",
+      "stage": "scope"
+    },
+    {
+      "index": 2,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][scope] list workspace root",
+      "toolName": "list_files",
+      "toolArgs": {
+        "path": "."
+      },
+      "timestamp": "2026-08-29T11:57:53.909Z",
+      "stage": "scope"
+    },
+    {
+      "index": 3,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "list_files",
+      "toolResult": "{\n  \"path\": \".\",\n  \"files\": [\n    \"README.md\",\n    \"data/\",\n    \"package.json\",\n    \"src/\",\n    \"test/\"\n  ]\n}",
+      "timestamp": "2026-08-29T11:57:53.909Z",
+      "stage": "scope"
+    },
+    {
+      "index": 4,
+      "type": "message",
+      "role": "assistant",
+      "content": "[mock][scope] wrote scope.md",
+      "timestamp": "2026-08-29T11:57:53.910Z",
+      "stage": "scope"
+    },
+    {
+      "index": 5,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][understand] search risk patterns",
+      "toolName": "search",
+      "toolArgs": {
+        "pattern": "orders|userId|getOrder|authorization",
+        "path": "."
+      },
+      "timestamp": "2026-08-29T11:57:53.910Z",
+      "stage": "understand"
+    },
+    {
+      "index": 6,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "search",
+      "toolResult": "{\n  \"pattern\": \"orders|userId|getOrder|authorization\",\n  \"hits\": []\n}",
+      "timestamp": "2026-08-29T11:57:53.911Z",
+      "stage": "understand"
+    },
+    {
+      "index": 7,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][understand] read src/server.js",
+      "toolName": "read_file",
+      "toolArgs": {
+        "path": "src/server.js"
+      },
+      "timestamp": "2026-08-29T11:57:53.911Z",
+      "stage": "understand"
+    },
+    {
+      "index": 8,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "read_file",
+      "toolResult": "import http from \"node:http\";\nimport { URL } from \"node:url\";\n\nconst PORT = Number(process.env.PORT ?? 3001);\n\n/** @type {Map<string, { id: string, userId: string, item: string, amount: number }>} */\nconst orders = new Map();\nlet seq = 1;\n\nfunction seed() {\n  const a = { id: \"ord-1\", userId: \"alice\", item: \"mug\", amount: 12 };\n  const b = { id: \"ord-2\", userId: \"bob\", item: \"tee\", amount: 25 };\n  orders.set(a.id, a);\n  orders.set(b.id, b);\n  seq = 3;\n}\nseed();\n\nfunction json(res, status, body) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(body));\n}\n\nfunction userId(req) {\n  return req.headers[\"x-user-id\"] ?? null;\n}\n\nfunction readBody(req) {\n  return new Promise((resolve, reject) => {\n    const chunks = [];\n    req.on(\"data\", (c) => chunks.push(c));\n    req.on(\"end\", () => {\n      try {\n        resolve(JSON.parse(Buffer.concat(chunks).toString(\"utf8\") || \"{}\"));\n      } catch (e) {\n        reject(e);\n      }\n    });\n  });\n}\n\nfunction listOrders(uid) {\n  return [...orders.values()].filter((o) => o.userId === uid);\n}\n\n/** CRITICAL DEFECT: no ownership check — IDOR */\nfunction getOrder(id, _uid) {\n  return orders.get(id) ?? null;\n}\n\nfunction createOrder(uid, item, amount) {\n  const id = `ord-${seq++}`;\n  const order = { id, userId: uid, item, amount };\n  orders.set(id, order);\n  return order;\n}\n\nexport { listOrders, getOrder, createOrder, orders };\n\nconst server = http.createServer(async (req, res) => {\n  const url = new URL(req.url ?? \"/\", `http://127.0.0.1:${PORT}`);\n  const uid = userId(req);\n\n  if (url.pathname === \"/health\") {\n    return json(res, 200, { ok: true });\n  }\n\n  if (!uid) {\n    return json(res, 401, { error: \"missing X-User-Id\" });\n  }\n\n  if (req.method === \"GET\" && url.pathname === \"/orders\") {\n    return json(res, 200, { orders: listOrders(uid) });\n  }\n\n  if (req.method === \"POST\" && url.pathname === \"/orders\") {\n    const body = await readBody(req);\n    const order = createOrder(uid, String(body.item ?? \"item\"), Number(body.amount ?? 0));\n    return json(res, 201, { order });\n  }\n\n  const m = url.pathname.match(/^\\/orders\\/([^/]+)$/);\n  if (req.method === \"GET\" && m) {\n    const order = getOrder(m[1], uid);\n    if (!order) return json(res, 404, { error: \"not found\" });\n    return json(res, 200, { order });\n  }\n\n  json(res, 404, { error: \"not found\" });\n});\n\nif (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\\\/g, \"/\"))) {\n  // noop for path compare\n}\nconst isMain = process.argv[1]?.endsWith(\"server.js\");\nif (isMain) {\n  server.listen(PORT, () => {\n    console.log(`orders api on :${PORT}`);\n  });\n}\n\nexport { server };\n",
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "understand"
+    },
+    {
+      "index": 9,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][understand] read package.json",
+      "toolName": "read_file",
+      "toolArgs": {
+        "path": "package.json"
+      },
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "understand"
+    },
+    {
+      "index": 10,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "read_file",
+      "toolResult": "{\n  \"name\": \"case-01-auth-idor\",\n  \"private\": true,\n  \"type\": \"module\",\n  \"scripts\": {\n    \"start\": \"node src/server.js\",\n    \"smoke\": \"node src/smoke.js\"\n  }\n}\n",
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "understand"
+    },
+    {
+      "index": 11,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][understand] read README.md",
+      "toolName": "read_file",
+      "toolArgs": {
+        "path": "README.md"
+      },
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "understand"
+    },
+    {
+      "index": 12,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "read_file",
+      "toolResult": "# MiniShop Orders API\n\nSimple order service for internal demos.\n\n## Quick start\n\n```bash\nnode src/server.js\n# AUTH: X-User-Id: alice\ncurl -H 'X-User-Id: alice' http://127.0.0.1:3001/orders\n```\n\n## API\n\n- `GET /health`\n- `GET /orders` — list current user's orders\n- `POST /orders` — create order `{ \"item\": \"...\", \"amount\": 10 }`\n- `GET /orders/:id` — fetch order by id\n\n## Tests\n\n`node src/smoke.js` exercises the happy path.\n",
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "understand"
+    },
+    {
+      "index": 13,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][model] list src/",
+      "toolName": "list_files",
+      "toolArgs": {
+        "path": "src"
+      },
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "model"
+    },
+    {
+      "index": 14,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "list_files",
+      "toolResult": "{\n  \"path\": \"src\",\n  \"files\": [\n    \"src/server.js\",\n    \"src/smoke.js\"\n  ]\n}",
+      "timestamp": "2026-08-29T11:57:53.912Z",
+      "stage": "model"
+    },
+    {
+      "index": 15,
+      "type": "message",
+      "role": "assistant",
+      "content": "[mock][model] wrote mental_model.json",
+      "timestamp": "2026-08-29T11:57:53.913Z",
+      "stage": "model"
+    },
+    {
+      "index": 16,
+      "type": "message",
+      "role": "assistant",
+      "content": "[mock][hypothesize] wrote hypotheses.json (proposed)",
+      "timestamp": "2026-08-29T11:57:53.914Z",
+      "stage": "hypothesize"
+    },
+    {
+      "index": 17,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][verify] re-read src/server.js for proof",
+      "toolName": "read_file",
+      "toolArgs": {
+        "path": "src/server.js"
+      },
+      "timestamp": "2026-08-29T11:57:53.914Z",
+      "stage": "verify"
+    },
+    {
+      "index": 18,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "read_file",
+      "toolResult": "import http from \"node:http\";\nimport { URL } from \"node:url\";\n\nconst PORT = Number(process.env.PORT ?? 3001);\n\n/** @type {Map<string, { id: string, userId: string, item: string, amount: number }>} */\nconst orders = new Map();\nlet seq = 1;\n\nfunction seed() {\n  const a = { id: \"ord-1\", userId: \"alice\", item: \"mug\", amount: 12 };\n  const b = { id: \"ord-2\", userId: \"bob\", item: \"tee\", amount: 25 };\n  orders.set(a.id, a);\n  orders.set(b.id, b);\n  seq = 3;\n}\nseed();\n\nfunction json(res, status, body) {\n  res.writeHead(status, { \"Content-Type\": \"application/json\" });\n  res.end(JSON.stringify(body));\n}\n\nfunction userId(req) {\n  return req.headers[\"x-user-id\"] ?? null;\n}\n\nfunction readBody(req) {\n  return new Promise((resolve, reject) => {\n    const chunks = [];\n    req.on(\"data\", (c) => chunks.push(c));\n    req.on(\"end\", () => {\n      try {\n        resolve(JSON.parse(Buffer.concat(chunks).toString(\"utf8\") || \"{}\"));\n      } catch (e) {\n        reject(e);\n      }\n    });\n  });\n}\n\nfunction listOrders(uid) {\n  return [...orders.values()].filter((o) => o.userId === uid);\n}\n\n/** CRITICAL DEFECT: no ownership check — IDOR */\nfunction getOrder(id, _uid) {\n  return orders.get(id) ?? null;\n}\n\nfunction createOrder(uid, item, amount) {\n  const id = `ord-${seq++}`;\n  const order = { id, userId: uid, item, amount };\n  orders.set(id, order);\n  return order;\n}\n\nexport { listOrders, getOrder, createOrder, orders };\n\nconst server = http.createServer(async (req, res) => {\n  const url = new URL(req.url ?? \"/\", `http://127.0.0.1:${PORT}`);\n  const uid = userId(req);\n\n  if (url.pathname === \"/health\") {\n    return json(res, 200, { ok: true });\n  }\n\n  if (!uid) {\n    return json(res, 401, { error: \"missing X-User-Id\" });\n  }\n\n  if (req.method === \"GET\" && url.pathname === \"/orders\") {\n    return json(res, 200, { orders: listOrders(uid) });\n  }\n\n  if (req.method === \"POST\" && url.pathname === \"/orders\") {\n    const body = await readBody(req);\n    const order = createOrder(uid, String(body.item ?? \"item\"), Number(body.amount ?? 0));\n    return json(res, 201, { order });\n  }\n\n  const m = url.pathname.match(/^\\/orders\\/([^/]+)$/);\n  if (req.method === \"GET\" && m) {\n    const order = getOrder(m[1], uid);\n    if (!order) return json(res, 404, { error: \"not found\" });\n    return json(res, 200, { order });\n  }\n\n  json(res, 404, { error: \"not found\" });\n});\n\nif (process.argv[1] && import.meta.url.endsWith(process.argv[1].replace(/\\\\/g, \"/\"))) {\n  // noop for path compare\n}\nconst isMain = process.argv[1]?.endsWith(\"server.js\");\nif (isMain) {\n  server.listen(PORT, () => {\n    console.log(`orders api on :${PORT}`);\n  });\n}\n\nexport { server };\n",
+      "timestamp": "2026-08-29T11:57:53.914Z",
+      "stage": "verify"
+    },
+    {
+      "index": 19,
+      "type": "tool_call",
+      "role": "assistant",
+      "content": "[mock][verify] search evidence for \"idor\"",
+      "toolName": "search",
+      "toolArgs": {
+        "pattern": "idor",
+        "path": "."
+      },
+      "timestamp": "2026-08-29T11:57:53.914Z",
+      "stage": "verify"
+    },
+    {
+      "index": 20,
+      "type": "tool_result",
+      "role": "tool",
+      "toolName": "search",
+      "toolResult": "{\n  \"pattern\": \"idor\",\n  \"hits\": [\n    {\n      \"path\": \"package.json\",\n      \"line\": 2,\n      \"text\": \"  \\\"name\\\": \\\"case-01-auth-idor\\\",\"\n    },\n    {\n      \"path\": \"src/server.js\",\n      \"line\": 46,\n      \"text\": \"/** CRITICAL DEFECT: no ownership check — IDOR */\"\n    }\n  ]\n}",
+      "timestamp": "2026-08-29T11:57:53.914Z",
+      "stage": "verify"
+    },
+    {
+      "index": 21,
+      "type": "final",
+      "role": "assistant",
+      "content": "[mock][report] wrote findings.json + report.md",
+      "timestamp": "2026-08-29T11:57:53.916Z",
+      "stage": "report"
+    }
+  ],
+  "findingsPath": "artifacts/checkmate-01-auth-idor-1788004673908/findings.json",
+  "notes": "MOCK/DRY-RUN Checkmate staged pipeline (harness smoke — NOT a real model evaluation)"
+}
